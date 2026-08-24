@@ -54,11 +54,15 @@
   } catch { localStorage.removeItem(SAVE_KEY); }
 
   const player = { x: state.x, y: state.y, r: 18, speed: 260, dirX:0, dirY:1, bob:0 };
-  const cam = { x: WORLD.w/2, y: WORLD.h/2, zoom: state.zoom || .82, drag:false, sx:0, sy:0, ox:0, oy:0 };
+  const cam = { x: WORLD.w/2, y: WORLD.h/2, zoom: state.zoom || .82, drag:false, sx:0, sy:0, ox:0, oy:0, follow:true };
   const keys = new Set();
   let nearby = null;
   let modalZone = null;
   let toastTimer = null;
+  let modalActionMode = 'zone';
+  let pointerStartX = 0;
+  let pointerStartY = 0;
+  let pointerMoved = false;
   let last = performance.now();
 
   function save(){
@@ -70,7 +74,7 @@
   function lerp(a,b,t){return a+(b-a)*t}
   function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
   function worldToScreen(x,y){return {x:(x-cam.x)*cam.zoom+canvas.width/2,y:(y-cam.y)*cam.zoom+canvas.height/2}}
-  function screenToWorld(x,y){return {x:(x-canvas.width/2)/cam.zoom+cam.x,y:(y-canvas.height/2)/cam.zoom+cam.y}}
+  function screenToWorld(x,y){return {x:(x-canvas._cssW/2)/cam.zoom+cam.x,y:(y-canvas._cssH/2)/cam.zoom+cam.y}}
 
   function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);canvas._cssW=r.width;canvas._cssH=r.height;}
   window.addEventListener('resize',resize);
@@ -173,15 +177,22 @@
   }
 
   function updatePlayer(dt){
-    let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy-=1;if(keys.has('s')||keys.has('arrowdown'))dy+=1;if(keys.has('a')||keys.has('arrowleft'))dx-=1;if(keys.has('d')||keys.has('arrowright'))dx+=1;if(dx||dy){const m=Math.hypot(dx,dy);dx/=m;dy/=m;player.dirX=dx;player.dirY=dy;const nx=player.x+dx*player.speed*dt,ny=player.y+dy*player.speed*dt;if(!isBlocked(nx,player.y))player.x=nx;if(!isBlocked(player.x,ny))player.y=ny;player.bob+=dt*10}cam.x=lerp(cam.x,player.x,.07);cam.y=lerp(cam.y,player.y,.07);updateNearby();document.getElementById('coordinate').textContent=`X ${Math.round(player.x)} · Y ${Math.round(player.y)}`}
-
-  function updateUI(){
-    const level=Math.max(1,Math.floor(state.xp/100)+1);state.level=level;const current=state.xp%100;document.getElementById('levelValue').textContent=level;document.getElementById('xpValue').textContent=state.xp;document.getElementById('xpBar').style.width=current+'%';
-    const count=state.discovered.filter(id=>zones.some(z=>z.id===id&&z.id!=='hub')).length;document.getElementById('discoverCount').textContent=count;document.getElementById('discoverBar').style.width=(count/5*100)+'%';
-    ['python','ai','algo','web'].forEach(sk=>{const el=document.querySelector(`.skill[data-skill="${sk}"]`);const v=clamp(state.skills[sk]||0,0,100);el.querySelector('b').textContent=v+'%';el.querySelector('.skill-bar span').style.width=v+'%'});
-    const mission=nextMission();document.getElementById('missionTitle').textContent=mission.title;document.getElementById('missionText').textContent=mission.text;
-    document.getElementById('locationName').textContent=currentZone()?.name||'ЦЕНТР ИНФО';document.getElementById('locationSub').textContent=currentZone()?.sub||'STARTING DISTRICT';
-    buildNav();
+    let dx=0,dy=0;
+    if(keys.has('w')||keys.has('arrowup'))dy-=1;
+    if(keys.has('s')||keys.has('arrowdown'))dy+=1;
+    if(keys.has('a')||keys.has('arrowleft'))dx-=1;
+    if(keys.has('d')||keys.has('arrowright'))dx+=1;
+    if(dx||dy){
+      const m=Math.hypot(dx,dy);dx/=m;dy/=m;
+      player.dirX=dx;player.dirY=dy;cam.follow=true;
+      const nx=player.x+dx*player.speed*dt,ny=player.y+dy*player.speed*dt;
+      if(!isBlocked(nx,player.y))player.x=nx;
+      if(!isBlocked(player.x,ny))player.y=ny;
+      player.bob+=dt*10;
+    }
+    if(cam.follow){cam.x=lerp(cam.x,player.x,.07);cam.y=lerp(cam.y,player.y,.07)}
+    updateNearby();
+    document.getElementById('coordinate').textContent=`X ${Math.round(player.x)} · Y ${Math.round(player.y)}`
   }
   function buildNav(){const list=document.getElementById('navList');list.innerHTML='';zones.filter(z=>z.id!=='hub').forEach(z=>{const open=state.discovered.includes(z.id)||state.level>=z.level;const done=state.completed.includes(z.id);const item=document.createElement('button');item.className='nav-item'+(currentZone()?.id===z.id?' active':'');item.innerHTML=`<span>${z.name}</span><span>${done?'DONE':open?'OPEN':'LV '+z.level}</span>`;item.addEventListener('click',()=>focusZone(z.id));list.appendChild(item)})}
   function currentZone(){return zones.slice().sort((a,b)=>{const da=Math.abs(player.x-a.x)+Math.abs(player.y-a.y),db=Math.abs(player.x-b.x)+Math.abs(player.y-b.y);return da-db})[0]}
@@ -193,7 +204,7 @@
     return {title:'Исследовать INFO.WORLD',text:'Все основные зоны открыты. Создавай собственные проекты.'};
   }
 
-  function focusZone(id){const z=zones.find(v=>v.id===id);if(!z)return;cam.x=z.x;cam.y=z.y;showToast(`${z.name} в фокусе`)}
+  function focusZone(id){const z=zones.find(v=>v.id===id);if(!z)return;cam.follow=false;cam.x=z.x;cam.y=z.y;showToast(`${z.name} в фокусе`)}
   function openZone(z){
     if(state.level<z.level){showToast(`Требуется уровень ${z.level}`);return}
     state.discovered=[...new Set([...state.discovered,z.id])];if(z.id!=='hub'&&!state.visited.includes(z.id)){state.visited.push(z.id);state.xp+=10;showToast(`Зона открыта · +10 XP`)}save();updateUI();openModal(z);playTone(520,.07);
@@ -201,25 +212,95 @@
   function openNpc(n){showToast(`${n.name}: ${n.line}`);if(!state.visited.includes(n.id)){state.visited.push(n.id);state.xp+=n.reward;showToast(`${n.name} наградил тебя · +${n.reward} XP`);save();updateUI()}playTone(640,.06)}
   function openSecret(){if(state.discovered.filter(x=>x!=='hub').length<3){showToast('Узел скрыт. Открой 3 района.');return}state.secret=true;state.xp+=50;save();updateUI();showToast('Секрет найден · +50 XP');playTone(800,.12)}
 
-  function openModal(z){modalZone=z;document.getElementById('modalTitle').textContent=z.name;document.getElementById('modalCode').textContent=`NODE ${String(z.level).padStart(2,'0')}`;document.getElementById('modalStatus').textContent=state.completed.includes(z.id)?'COMPLETED':state.discovered.includes(z.id)?'OPEN':'LOCKED';document.getElementById('modalDescription').textContent=z.description;document.getElementById('modalFocus').textContent=z.focus;document.getElementById('modalLevel').textContent=`Уровень ${z.level}+`;document.getElementById('modalMission').textContent=z.mission;document.getElementById('modalMissionText').textContent=z.text;const btn=document.getElementById('modalAction');btn.disabled=false;btn.textContent=state.completed.includes(z.id)?'Повторить':'Начать';document.getElementById('modalBackdrop').hidden=false}
+  function showModal(){document.getElementById('modalBackdrop').hidden=false}
+  function openModal(z){
+    modalZone=z;
+    modalActionMode='zone';
+    document.getElementById('modalTitle').textContent=z.name;
+    document.getElementById('modalCode').textContent=`NODE ${String(z.level).padStart(2,'0')}`;
+    document.getElementById('modalStatus').textContent=state.completed.includes(z.id)?'COMPLETED':state.discovered.includes(z.id)?'OPEN':'LOCKED';
+    document.getElementById('modalDescription').textContent=z.description;
+    document.getElementById('modalFocus').textContent=z.focus;
+    document.getElementById('modalLevel').textContent=`Уровень ${z.level}+`;
+    document.getElementById('modalMission').textContent=z.mission;
+    document.getElementById('modalMissionText').textContent=z.text;
+    const btn=document.getElementById('modalAction');
+    btn.disabled=false;
+    btn.textContent=state.completed.includes(z.id)?'Повторить':'Начать';
+    showModal();
+  }
   function closeModal(){document.getElementById('modalBackdrop').hidden=true;modalZone=null}
-  document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal()});
-  document.getElementById('modalAction').addEventListener('click',()=>{if(!modalZone)return;if(!state.completed.includes(modalZone.id)){state.completed.push(modalZone.id);state.xp+=35;if(modalZone.skill&&state.skills[modalZone.skill]!=null)state.skills[modalZone.skill]=clamp(state.skills[modalZone.skill]+25,0,100);save();updateUI();showToast(`${modalZone.name} · миссия завершена · +35 XP`);playTone(780,.12)}else{showToast('Миссия уже завершена. Попробуй снова.')}closeModal()});
+  document.getElementById('modalClose').addEventListener('click',closeModal);
+  document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal()});
+  document.getElementById('modalAction').addEventListener('click',()=>{
+    if(modalActionMode==='help'){closeModal();return;}
+    if(!modalZone){closeModal();return;}
+    if(!state.completed.includes(modalZone.id)){
+      state.completed.push(modalZone.id);
+      state.xp+=35;
+      if(modalZone.skill&&state.skills[modalZone.skill]!=null)state.skills[modalZone.skill]=clamp(state.skills[modalZone.skill]+25,0,100);
+      save();updateUI();showToast(`${modalZone.name} · миссия завершена · +35 XP`);playTone(780,.12);
+    }else{showToast('Миссия уже завершена. Попробуй снова.')}
+    closeModal();
+  });
 
   function interact(){if(!nearby)return;if(nearby.id==='secret')return openSecret();if(['byte','ada','max'].includes(nearby.id))return openNpc(nearby);return openZone(nearby)}
 
   function playTone(freq,dur){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=freq;o.type='sine';g.gain.value=.001;o.connect(g);g.connect(ac.destination);const now=ac.currentTime;g.gain.exponentialRampToValueAtTime(.05,now+.01);g.gain.exponentialRampToValueAtTime(.001,now+dur);o.start(now);o.stop(now+dur+.02)}catch{}}
 
-  function pointerDown(e){if(e.pointerType==='touch'&&e.target.closest('.touch-pad'))return;cam.drag=true;cam.sx=e.clientX;cam.sy=e.clientY;cam.ox=cam.x;cam.oy=cam.y;canvas.setPointerCapture?.(e.pointerId)}
-  function pointerMove(e){if(!cam.drag)return;const dx=(e.clientX-cam.sx)/cam.zoom,dy=(e.clientY-cam.sy)/cam.zoom;cam.x=clamp(cam.ox-dx,WORLD.w*.12,WORLD.w*.88);cam.y=clamp(cam.oy-dy,WORLD.h*.12,WORLD.h*.88)}
-  function pointerUp(){cam.drag=false}
-  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
-  canvas.addEventListener('wheel',e=>{e.preventDefault();const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom)showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)},{passive:false});
-  document.getElementById('zoomIn').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*1.1,.55,1.5));document.getElementById('zoomOut').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*.9,.55,1.5));document.getElementById('recenter').addEventListener('click',()=>{cam.x=player.x;cam.y=player.y});document.getElementById('brandBtn').addEventListener('click',()=>{cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
+  function pointerDown(e){
+    if(e.pointerType==='touch'&&e.target.closest('.touch-pad'))return;
+    cam.drag=true;cam.follow=false;cam.sx=e.clientX;cam.sy=e.clientY;cam.ox=cam.x;cam.oy=cam.y;
+    pointerStartX=e.clientX;pointerStartY=e.clientY;pointerMoved=false;
+    canvas.setPointerCapture?.(e.pointerId);
+  }
+  function pointerMove(e){
+    if(!cam.drag)return;
+    const totalMove=Math.hypot(e.clientX-pointerStartX,e.clientY-pointerStartY);
+    if(totalMove>6)pointerMoved=true;
+    const dx=(e.clientX-cam.sx)/cam.zoom,dy=(e.clientY-cam.sy)/cam.zoom;
+    cam.x=clamp(cam.ox-dx,WORLD.w*.12,WORLD.w*.88);cam.y=clamp(cam.oy-dy,WORLD.h*.12,WORLD.h*.88);
+  }
+  function pickAtCanvas(clientX,clientY){
+    const r=canvas.getBoundingClientRect();
+    const p=screenToWorld((clientX-r.left)*(canvas.width/r.width),(clientY-r.top)*(canvas.height/r.height));
+    const candidates=[...zones.filter(z=>z.id!=='hub'),...npcs,{id:'secret',name:'UNKNOWN NODE',x:2080,y:520}];
+    const npcHit=candidates.filter(o=>['byte','ada','max','secret'].includes(o.id)).sort((a,b)=>Math.hypot(p.x-a.x,p.y-a.y)-Math.hypot(p.x-b.x,p.y-b.y))[0];
+    if(npcHit && Math.hypot(p.x-npcHit.x,p.y-npcHit.y)<55)return npcHit;
+    const zoneHit=zones.filter(z=>z.id!=='hub').find(z=>Math.abs(p.x-z.x)<=z.w/2 && Math.abs(p.y-z.y)<=z.h/2);
+    return zoneHit||null;
+  }
+  function pointerUp(e){
+    if(!cam.drag)return;
+    if(!pointerMoved){
+      const hit=pickAtCanvas(e.clientX,e.clientY);
+      if(hit){
+        if(hit.id==='secret')openSecret();
+        else if(['byte','ada','max'].includes(hit.id))openNpc(hit);
+        else openZone(hit);
+      }
+    }
+    cam.drag=false;
+  }
+  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',()=>{cam.drag=false});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();cam.follow=false;const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom)showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)},{passive:false});
+  document.getElementById('zoomIn').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*1.1,.55,1.5));document.getElementById('zoomOut').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*.9,.55,1.5));document.getElementById('recenter').addEventListener('click',()=>{cam.follow=true;cam.x=player.x;cam.y=player.y});document.getElementById('brandBtn').addEventListener('click',()=>{cam.follow=true;cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
   document.getElementById('helpBtn').addEventListener('click',()=>openHelp());document.getElementById('profileBtn').addEventListener('click',()=>showToast(`Уровень ${state.level} · ${state.xp} XP`));
   document.getElementById('mobileProgressBtn').addEventListener('click',()=>document.getElementById('rightPanel').classList.toggle('open'));document.getElementById('mobileMenuBtn').addEventListener('click',()=>{document.getElementById('leftPanel').style.display=document.getElementById('leftPanel').style.display==='flex'?'none':'flex';document.getElementById('leftPanel').style.position='absolute';document.getElementById('leftPanel').style.zIndex='22';document.getElementById('leftPanel').style.left='8px';document.getElementById('leftPanel').style.top='8px';document.getElementById('leftPanel').style.bottom='8px';document.getElementById('leftPanel').style.width='250px'});
 
-  function openHelp(){const h=zones.find(z=>z.id==='hub');document.getElementById('modalTitle').textContent='Как устроен INFO.WORLD';document.getElementById('modalCode').textContent='HELP 00';document.getElementById('modalStatus').textContent='ONLINE';document.getElementById('modalDescription').textContent='Это интерактивный мир, где обучение встроено в исследование. Иди по дорогам, подходи к зданиям и персонажам, нажимай E и открывай новые районы.';document.getElementById('modalFocus').textContent='Исследование';document.getElementById('modalLevel').textContent='Без ограничений';document.getElementById('modalMission').textContent='Начни с Python';document.getElementById('modalMissionText').textContent='Твоя первая цель — найти Python District. Каждое открытие и миссия дают XP и развивают навыки.';document.getElementById('modalAction').textContent='Понятно';document.getElementById('modalAction').onclick=closeModal;document.getElementById('modalBackdrop').hidden=false}
+  function openHelp(){
+    modalZone=null;modalActionMode='help';
+    document.getElementById('modalTitle').textContent='Как устроен INFO.WORLD';
+    document.getElementById('modalCode').textContent='HELP 00';
+    document.getElementById('modalStatus').textContent='ONLINE';
+    document.getElementById('modalDescription').textContent='Это интерактивный мир, где обучение встроено в исследование. Иди по дорогам, подходи к зданиям и персонажам, нажимай E и открывай новые районы.';
+    document.getElementById('modalFocus').textContent='Исследование';
+    document.getElementById('modalLevel').textContent='Без ограничений';
+    document.getElementById('modalMission').textContent='Начни с Python';
+    document.getElementById('modalMissionText').textContent='Твоя первая цель — найти Python District. Каждое открытие и миссия дают XP и развивают навыки.';
+    const btn=document.getElementById('modalAction');btn.disabled=false;btn.textContent='Понятно';
+    showModal();
+  }
 
   document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='e'){e.preventDefault();interact()}else if(k==='escape'){closeModal()}else if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys.add(k)}});document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
   document.querySelectorAll('#touchPad [data-dir]').forEach(btn=>{const map={up:'w',down:'s',left:'a',right:'d'};const start=e=>{e.preventDefault();keys.add(map[btn.dataset.dir])};const end=e=>{e.preventDefault();keys.delete(map[btn.dataset.dir])};btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',end);btn.addEventListener('pointerleave',end)});

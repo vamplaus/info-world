@@ -1,21 +1,5 @@
-# INFO.WORLD 2.0
+# INFO.WORLD — fixed interaction build
 
-Интерактивный 2D-мир для обучения информатике.
+Fixes: modal overlay no longer blocks the page at startup; zones/NPCs are directly clickable; drag/zoom camera no longer snaps back to the player; E interaction remains available.
 
-## Файлы
-- `index.html` — разметка
-- `style.css` — интерфейс и адаптивность
-- `script.js` — мир, персонаж, NPC, районы, миссии, прогресс
-
-## Управление
-- WASD / стрелки — движение
-- E — взаимодействие
-- Drag — камера
-- Колесо мыши — масштаб
-- На телефоне — виртуальный D-pad
-
-## Запуск
-Откройте `index.html` в браузере или опубликуйте три файла через GitHub Pages.
-
-## Сохранение
-Прогресс хранится локально в `localStorage` браузера.
+Controls: WASD/arrows = move; E = interact; click/tap = interact; drag = camera; wheel or +/- = zoom.
