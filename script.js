@@ -1,252 +1,232 @@
 (() => {
   'use strict';
 
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const canvas = document.getElementById('worldCanvas');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const viewport = document.getElementById('viewport');
+  const boot = document.getElementById('boot');
+  const app = document.getElementById('app');
+  const bootProgress = document.getElementById('bootProgress');
+  const bootPercent = document.getElementById('bootPercent');
+  const toast = document.getElementById('toast');
 
-  const STORAGE_KEY = 'infoworld-progress-v3';
-  const ZONE_ORDER = ['python', 'ai', 'algo', 'web', 'exam', 'game'];
+  const SAVE_KEY = 'info-world-2-state';
+  const WORLD = { w: 2400, h: 1700 };
 
-  const zones = {
-    python: { icon:'</>', kicker:'PYTHON', title:'Python District', color:'#7fe8ba', meta:['с нуля','практика','проекты'], desc:'От первых переменных до автоматизации, алгоритмов и небольших игр. Здесь код становится инструментом.', list:['Переменные, условия и циклы','Функции, списки и структуры данных','Мини-проекты и задачи'], mission:'Создай программу, которая принимает два числа и выводит их сумму без подсказок.', xp:50, skill:'python', skillGain:18 },
-    ai: { icon:'✦', kicker:'AI LAB', title:'Искусственный интеллект', color:'#c291ff', meta:['нейросети','промптинг','генерация'], desc:'Понятный вход в AI: как работают модели, как с ними взаимодействовать и как собирать полезные прототипы.', list:['Как устроены современные AI-системы','Промптинг и работа с моделями','Практические AI-проекты'], mission:'Сформулируй один промпт, который заставит модель выдать ответ в строго заданном формате.', xp:60, skill:'ai', skillGain:16 },
-    algo: { icon:'∑', kicker:'ALGO CITY', title:'Алгоритмы и мышление', color:'#69dcff', meta:['логика','задачи','структуры'], desc:'Разбирай задачи на части, находи закономерности и учись строить решение до написания кода.', list:['Декомпозиция задач','Массивы, строки и сортировки','Сложные алгоритмические задачи'], mission:'Возьми любую бытовую задачу и разложи её на три последовательных шага.', xp:55, skill:'algo', skillGain:17 },
-    web: { icon:'◈', kicker:'WEB LAB', title:'Создание сайтов', color:'#ff93c7', meta:['HTML','CSS','JavaScript'], desc:'От первого HTML-документа до интерактивного интерфейса, который можно опубликовать в интернете.', list:['Структура страницы','Современный UI и адаптивность','Интерактивность на JavaScript'], mission:'Добавь к этой странице кнопку, которая изменяет состояние интерфейса.', xp:55, skill:'web', skillGain:16 },
-    exam: { icon:'01', kicker:'EXAM ARENA', title:'ОГЭ / ЕГЭ', color:'#ffd67b', meta:['ОГЭ','ЕГЭ','контроль'], desc:'Подготовка превращается в серии миссий: повторение, практика, ошибки, пробники и отслеживание слабых мест.', list:['Типовые задания','Python и алгоритмы','Разбор ошибок и пробники'], mission:'Реши одну экзаменационную задачу сначала сам, а потом сравни решение с эталоном.', xp:70, skill:'algo', skillGain:13 },
-    game: { icon:'⌁', kicker:'GAME GARAGE', title:'Создание игр', color:'#8a95a7', meta:['игры','механики','в разработке'], desc:'Будущий сектор для тех, кто хочет создавать игры: логика, интерфейсы, уровни и собственные механики.', list:['Игровая логика','Сценарии и механики','Свой мини-проект'], mission:'Придумай механику игры, которую можно реализовать за один вечер.', xp:40, skill:'python', skillGain:10 }
-  };
+  const zones = [
+    { id:'hub', name:'INFO HUB', sub:'CENTRAL DISTRICT', x:1200,y:820,w:360,h:280, color:'#5dd8ff', level:1, skill:'general', focus:'Навигация', mission:'Сориентироваться в мире', text:'Освой базовое управление и найди первую учебную зону.', description:'Центральная площадь — отправная точка мира. Здесь находятся главный терминал, карта районов и первые задания.' },
+    { id:'python', name:'PYTHON DISTRICT', sub:'CODE DISTRICT', x:560,y:500,w:420,h:330,color:'#65d7a5',level:1,skill:'python',focus:'Python с нуля',mission:'Запустить первую программу',text:'Найди терминал и выполни print("Hello, world!").',description:'Улица терминалов, маленькие code-cafés и мастерские отладки. Здесь начинается программирование.' },
+    { id:'algo', name:'ALGORITHM CITY', sub:'LOGIC DISTRICT', x:1000,y:260,w:430,h:320,color:'#a58aff',level:2,skill:'algo',focus:'Алгоритмы',mission:'Пройти первый маршрут',text:'Разоберись, как решение проходит через условие.',description:'Город-лабиринт из логических узлов. Улицы здесь построены как алгоритмы: каждый поворот зависит от решения.' },
+    { id:'ai', name:'AI LAB', sub:'FUTURE DISTRICT', x:1690,y:430,w:470,h:340,color:'#ffb66d',level:3,skill:'ai',focus:'AI и нейросети',mission:'Обучить первый узел',text:'Соедини входные данные с правильным результатом.',description:'Лаборатория данных и нейросетей. Здесь объясняется, как машины учатся на примерах.' },
+    { id:'web', name:'WEB LAB', sub:'NETWORK DISTRICT', x:1770,y:1050,w:420,h:330,color:'#66b6ff',level:2,skill:'web',focus:'HTML / CSS / JS',mission:'Собрать первый интерфейс',text:'Создай простую кнопку и свяжи её с событием.',description:'Сектор браузеров, интерфейсов и серверных узлов. Здесь идеи превращаются в сайты.' },
+    { id:'exam', name:'EXAM ARENA', sub:'CHALLENGE DISTRICT', x:570,y:1180,w:500,h:330,color:'#f08cf1',level:4,skill:'general',focus:'ОГЭ / ЕГЭ',mission:'Закрыть пробное задание',text:'Реши одну задачу без подсказки.',description:'Большая экзаменационная арена. Подготовка строится как серия испытаний с растущей сложностью.' },
+  ];
 
-  const npcs = {
-    byte: { icon:'B', kicker:'MENTOR / SYSTEMS', title:'BYTE', color:'#69dcff', text:'Я помогаю превращать большие задачи в маленькие понятные действия. Не пытайся сразу выучить всё.', quote:'«Сначала действие. Потом объяснение. Потом ещё одно действие.»', reward:20 },
-    ada: { icon:'A', kicker:'RESEARCH / AI', title:'ADA', color:'#c291ff', text:'AI — не магия и не кнопка «сделай за меня». Это инструмент, который требует точного запроса и проверки результата.', quote:'«Хороший запрос — это маленькое техническое задание.»', reward:20 },
-    max: { icon:'M', kicker:'MAKER / CREATIVE', title:'MAX', color:'#ff93c7', text:'Самый быстрый способ понять технологию — сделать с её помощью что-нибудь своё.', quote:'«Проект, который работает на 70%, полезнее идеального проекта в голове.»', reward:20 }
-  };
+  const props = [
+    {x:860,y:730,type:'bridge'},{x:1510,y:620,type:'bridge'},{x:1200,y:1130,type:'bridge'},
+    {x:420,y:910,type:'terminal'},{x:1450,y:420,type:'tower'},{x:1550,y:1080,type:'tower'},
+    {x:780,y:1040,type:'tree'},{x:1120,y:1420,type:'tree'},{x:1490,y:970,type:'tree'},{x:2050,y:850,type:'tree'},
+    {x:1040,y:680,type:'lamp'},{x:1350,y:720,type:'lamp'},{x:1610,y:820,type:'lamp'},{x:720,y:980,type:'lamp'},
+  ];
 
-  const defaults = { visited: [], missions: [], npcs: [], xp: 0, skill: { python:0, ai:0, algo:0, web:0 }, sound:false, zoom:1, player:{x:46,y:57}, camera:{x:0,y:0} };
-  const loadState = () => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return structuredClone(defaults);
-      const data = JSON.parse(raw);
-      return {
-        ...defaults,
-        ...data,
-        visited: Array.isArray(data.visited) ? data.visited.filter(k => ZONE_ORDER.includes(k)) : [],
-        missions: Array.isArray(data.missions) ? data.missions.filter(k => ZONE_ORDER.includes(k)) : [],
-        npcs: Array.isArray(data.npcs) ? data.npcs.filter(k => Object.keys(npcs).includes(k)) : [],
-        skill: { ...defaults.skill, ...(data.skill || {}) },
-        player: { ...defaults.player, ...(data.player || {}) },
-        camera: { ...defaults.camera, ...(data.camera || {}) },
-        zoom: Number.isFinite(data.zoom) ? data.zoom : 1
-      };
-    } catch { return structuredClone(defaults); }
-  };
+  const npcs = [
+    {id:'byte',name:'BYTE',role:'MENTOR',x:1115,y:845,color:'#61d7ff',line:'Начни с Python. Маленькие программы быстрее всего превращаются в большие идеи.',reward:20},
+    {id:'ada',name:'ADA',role:'AI RESEARCH',x:1600,y:690,color:'#ffb86a',line:'AI — это не магия. Данные, модель, проверка результата. Исследуй и увидишь.',reward:25},
+    {id:'max',name:'MAX',role:'CREATOR',x:820,y:1030,color:'#a892ff',line:'Лучший проект — тот, который тебе хочется показать другому человеку.',reward:20},
+  ];
 
-  const state = loadState();
-  let audioCtx = null;
-  let drag = null;
-  let suppressNextClick = false;
-  let nearest = null;
-  let activeZone = null;
-  let activeNpc = null;
+  const roads = [
+    [[1200,820],[780,670],[560,660]],
+    [[1200,820],[1205,500]],
+    [[1200,820],[1460,620],[1690,600]],
+    [[1200,820],[1510,1000],[1770,1190]],
+    [[1200,820],[930,980],[820,1200],[570,1340]],
+  ];
+
+  const safeDefaults = () => ({
+    x:1185,y:920,zoom:0.82,camX:0,camY:0,level:1,xp:0,discovered:['hub'],completed:[],visited:[],secret:false,skills:{python:0,ai:0,algo:0,web:0}
+  });
+
+  let state = safeDefaults();
+  try {
+    const raw = JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
+    if(raw && typeof raw === 'object') state = {...state,...raw,skills:{...state.skills,...(raw.skills||{})}};
+  } catch { localStorage.removeItem(SAVE_KEY); }
+
+  const player = { x: state.x, y: state.y, r: 18, speed: 260, dirX:0, dirY:1, bob:0 };
+  const cam = { x: WORLD.w/2, y: WORLD.h/2, zoom: state.zoom || .82, drag:false, sx:0, sy:0, ox:0, oy:0 };
+  const keys = new Set();
+  let nearby = null;
+  let modalZone = null;
   let toastTimer = null;
+  let last = performance.now();
 
-  const els = {
-    body: document.body,
-    boot: $('#boot'), bootLine: $('#bootLine'), bootProgress: $('#bootProgress'), bootPercent: $('#bootPercent'), bootEnter: $('#bootEnter'),
-    clock: $('#clock'), soundBtn: $('#soundBtn'), aboutBtn: $('#aboutBtn'), enterMapBtn: $('#enterMapBtn'), randomBtn: $('#randomBtn'),
-    stage: $('#stage'), world: $('#world'), camera: $('#camera'), map: $('#map'), player: $('#player'), stars: $('#stars'), stageGrid: $('#stageGrid'), zoomValue: $('#zoomValue'),
-    discoveryList: $('#discoveryList'), progressText: $('#progressText'), progressBar: $('#progressBar'), levelRing: $('#levelRing'), levelNum: $('#levelNum'), xpText: $('#xpText'),
-    missionTitle: $('#missionTitle'), missionText: $('#missionText'), missionBtn: $('#missionBtn'), statsZones: $('#statsZones'),
-    heroLevel: $('#heroLevel'), heroXp: $('#heroXp'), coords: $('#coords'), interactHint: $('#interactHint'), interactTitle: $('#interactTitle'), interactText: $('#interactText'),
-    zoneModal: $('#zoneModal'), modalIcon: $('#modalIcon'), modalKicker: $('#modalKicker'), zoneTitle: $('#zoneTitle'), modalDesc: $('#modalDesc'), modalChips: $('#modalChips'), modalList: $('#modalList'), modalMission: $('#modalMission'), zoneActionBtn: $('#zoneActionBtn'), programBtn: $('#programBtn'),
-    lessonModal: $('#lessonModal'), lessonTitle: $('#lessonTitle'), lessonIntro: $('#lessonIntro'), challengeBox: $('#challengeBox'), completeMissionBtn: $('#completeMissionBtn'),
-    npcModal: $('#npcModal'), npcIcon: $('#npcIcon'), npcKicker: $('#npcKicker'), npcTitle: $('#npcTitle'), npcText: $('#npcText'), npcQuote: $('#npcQuote'), npcRewardBtn: $('#npcRewardBtn'),
-    aboutModal: $('#aboutModal'), backdrop: $('#backdrop'), toast: $('#toast'), toastText: $('#toastText')
-  };
+  function save(){
+    state.x=player.x;state.y=player.y;state.zoom=cam.zoom;state.visited=[...new Set(state.visited)];
+    try{localStorage.setItem(SAVE_KEY, JSON.stringify(state));document.getElementById('saveState').textContent='SYNCED';}catch{document.getElementById('saveState').textContent='LOCAL';}
+  }
+  function showToast(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),1900)}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+  function lerp(a,b,t){return a+(b-a)*t}
+  function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+  function worldToScreen(x,y){return {x:(x-cam.x)*cam.zoom+canvas.width/2,y:(y-cam.y)*cam.zoom+canvas.height/2}}
+  function screenToWorld(x,y){return {x:(x-canvas.width/2)/cam.zoom+cam.x,y:(y-canvas.height/2)/cam.zoom+cam.y}}
 
-  const persist = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  const toast = (message) => { els.toastText.textContent = message; els.toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2300); };
-  const levelFromXp = xp => Math.max(1, Math.floor(Math.max(0, xp) / 100) + 1);
-  const xpIntoLevel = xp => Math.max(0, xp % 100);
+  function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);canvas._cssW=r.width;canvas._cssH=r.height;}
+  window.addEventListener('resize',resize);
 
-  function savePlayer(){ state.player={...state.player}; state.camera={x:cameraX,y:cameraY}; persist(); }
+  function drawRoundedRect(c,x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.stroke()}}
+  function hexToRgba(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`}
 
-  function createStars(){
-    if (!els.stars) return;
-    els.stars.replaceChildren();
-    const count = Math.min(170, Math.max(75, Math.floor(innerWidth / 7)));
-    const frag = document.createDocumentFragment();
-    for(let i=0;i<count;i++){
-      const s=document.createElement('i'); s.className='star'; s.style.left=`${Math.random()*100}%`; s.style.top=`${Math.random()*100}%`; s.style.opacity=(.12+Math.random()*.75).toFixed(2); s.style.animationDelay=`${(Math.random()*3).toFixed(2)}s`; frag.appendChild(s);
+  function drawBackground(t){
+    const w=canvas._cssW,h=canvas._cssH;
+    const g=ctx.createRadialGradient(w*.48,h*.44,0,w*.48,h*.44,Math.max(w,h)*.75);g.addColorStop(0,'#14233a');g.addColorStop(.5,'#0a1721');g.addColorStop(1,'#071019');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.save();ctx.globalAlpha=.35;
+    for(let i=0;i<90;i++){const sx=(i*137+Math.sin(t*.0001+i)*45)%w;const sy=(i*79+Math.cos(t*.00013+i)*25)%h;ctx.fillStyle=i%5===0?'#8ee4ff':'#6b7683';ctx.fillRect(sx,sy,(i%3)+1,(i%3)+1)}ctx.restore();
+    // subtle atmosphere zones
+    const blobs=[['#274f83',.14,.28,.34],['#653881',.12,.74,.2],['#176d72',.10,.82,.65]];
+    blobs.forEach(([col,a,cx,cy])=>{const rg=ctx.createRadialGradient(w*cx,h*cy,0,w*cx,h*cy,Math.min(w,h)*.42);rg.addColorStop(0,hexToRgba(col,a));rg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=rg;ctx.fillRect(0,0,w,h)});
+  }
+
+  function drawGrid(){
+    const minX=cam.x-canvas._cssW/(2*cam.zoom), maxX=cam.x+canvas._cssW/(2*cam.zoom), minY=cam.y-canvas._cssH/(2*cam.zoom), maxY=cam.y+canvas._cssH/(2*cam.zoom);
+    const step=80;ctx.save();ctx.strokeStyle='rgba(120,170,200,.045)';ctx.lineWidth=1/cam.zoom;
+    for(let x=Math.floor(minX/step)*step;x<=maxX;x+=step){ctx.beginPath();ctx.moveTo(x,minY);ctx.lineTo(x,maxY);ctx.stroke()}
+    for(let y=Math.floor(minY/step)*step;y<=maxY;y+=step){ctx.beginPath();ctx.moveTo(minX,y);ctx.lineTo(maxX,y);ctx.stroke()}
+    ctx.restore();
+  }
+
+  function pathScreen(points){ctx.beginPath();points.forEach((p,i)=>{const s=worldToScreen(p[0],p[1]);if(i===0)ctx.moveTo(s.x,s.y);else ctx.lineTo(s.x,s.y)});}
+  function drawRoads(){
+    roads.forEach(line=>{ctx.save();ctx.lineCap='round';pathScreen(line);ctx.strokeStyle='rgba(7,11,15,.85)';ctx.lineWidth=76*cam.zoom;ctx.stroke();pathScreen(line);ctx.strokeStyle='rgba(64,79,94,.6)';ctx.lineWidth=52*cam.zoom;ctx.stroke();pathScreen(line);ctx.setLineDash([12*cam.zoom,14*cam.zoom]);ctx.strokeStyle='rgba(135,158,177,.2)';ctx.lineWidth=2*cam.zoom;ctx.stroke();ctx.setLineDash([]);ctx.restore()});
+  }
+  function drawWater(){
+    ctx.save();
+    const top=920,left=1300;ctx.beginPath();ctx.moveTo(worldToScreen(left,780).x,worldToScreen(left,780).y);ctx.bezierCurveTo(worldToScreen(1600,820).x,worldToScreen(1600,820).y,worldToScreen(1780,870).x,worldToScreen(1780,870).y,worldToScreen(1780,960).x,worldToScreen(1780,960).y);ctx.bezierCurveTo(worldToScreen(1800,1050).x,worldToScreen(1800,1050).y,worldToScreen(1650,1100).x,worldToScreen(1650,1100).y,worldToScreen(1530,1060).x,worldToScreen(1530,1060).y);ctx.bezierCurveTo(worldToScreen(1440,1020).x,worldToScreen(1440,1020).y,worldToScreen(1370,980).x,worldToScreen(1370,980).y,worldToScreen(left,920).x,worldToScreen(left,920).y);ctx.closePath();ctx.fillStyle='rgba(26,87,118,.28)';ctx.fill();ctx.strokeStyle='rgba(105,213,255,.15)';ctx.lineWidth=2;ctx.stroke();
+    for(let i=0;i<8;i++){const y=800+i*36;ctx.beginPath();ctx.moveTo(worldToScreen(1430,y).x,worldToScreen(1430,y).y);ctx.quadraticCurveTo(worldToScreen(1600,y+12).x,worldToScreen(1600,y+12).y,worldToScreen(1770,y-3).x,worldToScreen(1770,y-3).y);ctx.strokeStyle='rgba(106,211,243,.14)';ctx.lineWidth=2;ctx.stroke()}
+    ctx.restore();
+  }
+
+  function drawZone(zone,t){
+    const s=worldToScreen(zone.x,zone.y),w=zone.w*cam.zoom,h=zone.h*cam.zoom;
+    const active=nearby?.id===zone.id; const found=state.discovered.includes(zone.id);
+    ctx.save();
+    // ground patch
+    drawRoundedRect(ctx,s.x-w/2,s.y-h/2,w,h,28*cam.zoom,found?hexToRgba(zone.color,.08):'rgba(255,255,255,.025)',active?'rgba(255,255,255,.28)':'rgba(255,255,255,.07)');
+    // buildings / landmarks specific to zone
+    const baseX=s.x,baseY=s.y;
+    ctx.shadowBlur=active?22:10;ctx.shadowColor=hexToRgba(zone.color,active?.3:.16);
+    if(zone.id==='hub'){
+      drawRoundedRect(ctx,baseX-120*cam.zoom,baseY-70*cam.zoom,240*cam.zoom,140*cam.zoom,25*cam.zoom,'#111d27','rgba(123,184,221,.22)');
+      ctx.shadowBlur=0;ctx.fillStyle='#173244';ctx.fillRect(baseX-88*cam.zoom,baseY-50*cam.zoom,176*cam.zoom,90*cam.zoom);
+      ctx.fillStyle='#dff6ff';ctx.font=`700 ${12*cam.zoom}px Inter`;ctx.textAlign='center';ctx.fillText('INFO HUB',baseX,baseY-10*cam.zoom);
+      ctx.fillStyle='#6bd4ff';ctx.font=`${7*cam.zoom}px DM Mono`;ctx.fillText('LEARNING CORE',baseX,baseY+9*cam.zoom);
+      ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(baseX-54*cam.zoom,baseY+26*cam.zoom,108*cam.zoom,4*cam.zoom);
+    } else if(zone.id==='python') drawPythonDistrict(s.x,s.y,zone);
+    else if(zone.id==='algo') drawAlgoDistrict(s.x,s.y,zone,t);
+    else if(zone.id==='ai') drawAiDistrict(s.x,s.y,zone,t);
+    else if(zone.id==='web') drawWebDistrict(s.x,s.y,zone);
+    else if(zone.id==='exam') drawExamDistrict(s.x,s.y,zone);
+    ctx.shadowBlur=0;
+    // label
+    ctx.textAlign='center';ctx.fillStyle='#dbe4eb';ctx.font=`700 ${10*cam.zoom}px Inter`;ctx.fillText(zone.name,baseX,baseY+h/2+22*cam.zoom);ctx.fillStyle='#627181';ctx.font=`${7*cam.zoom}px DM Mono`;ctx.fillText(zone.sub,baseX,baseY+h/2+35*cam.zoom);
+    if(zone.id!=='hub'){
+      const dotY=baseY-h/2-13*cam.zoom;ctx.beginPath();ctx.arc(baseX,dotY,4*cam.zoom,0,Math.PI*2);ctx.fillStyle=found?zone.color:'#505b66';ctx.fill();
+      if(!found){ctx.font=`${7*cam.zoom}px DM Mono`;ctx.fillStyle='#687481';ctx.fillText('LOCKED BY LEVEL',baseX,dotY-10*cam.zoom)}
     }
-    els.stars.appendChild(frag);
+    ctx.restore();
+  }
+  function drawPythonDistrict(x,y,z){
+    ctx.fillStyle='#13251e';ctx.fillRect(x-120*cam.zoom,y-60*cam.zoom,240*cam.zoom,120*cam.zoom);ctx.fillStyle='#1e3a2e';for(let i=-2;i<=2;i++)for(let j=-1;j<=1;j++){ctx.fillRect(x+i*42*cam.zoom-15*cam.zoom,y+j*38*cam.zoom-10*cam.zoom,30*cam.zoom,20*cam.zoom)}ctx.fillStyle='#7de2af';ctx.fillRect(x-20*cam.zoom,y-70*cam.zoom,40*cam.zoom,20*cam.zoom);ctx.fillStyle='#0e1712';ctx.font=`700 ${12*cam.zoom}px DM Mono`;ctx.textAlign='center';ctx.fillText('</>',x,y-55*cam.zoom);for(let i=-3;i<=3;i++){ctx.fillStyle='rgba(111,220,173,.18)';ctx.fillRect(x+i*46*cam.zoom-1*cam.zoom,y+65*cam.zoom,2*cam.zoom,8*cam.zoom)}}
+  function drawAlgoDistrict(x,y,z,t){
+    ctx.fillStyle='#17162a';ctx.fillRect(x-135*cam.zoom,y-70*cam.zoom,270*cam.zoom,140*cam.zoom);const nodes=[];for(let i=-2;i<=2;i++)nodes.push({x:x+i*45*cam.zoom,y:y+Math.sin(t*.001+i)*12*cam.zoom});ctx.strokeStyle='rgba(165,138,255,.2)';ctx.lineWidth=3*cam.zoom;for(let i=0;i<nodes.length-1;i++){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[i+1].x,nodes[i+1].y);ctx.stroke()}nodes.forEach((n,i)=>{ctx.beginPath();ctx.arc(n.x,n.y,18*cam.zoom,0,Math.PI*2);ctx.fillStyle=i===2?'#5e4b9e':'#27213f';ctx.fill();ctx.strokeStyle='rgba(183,160,255,.45)';ctx.stroke();ctx.fillStyle='#dbd4ff';ctx.font=`700 ${9*cam.zoom}px DM Mono`;ctx.textAlign='center';ctx.fillText(i===2?'Σ':'•',n.x,n.y+3*cam.zoom)})}
+  function drawAiDistrict(x,y,z,t){
+    ctx.fillStyle='#2a2117';ctx.fillRect(x-145*cam.zoom,y-75*cam.zoom,290*cam.zoom,150*cam.zoom);ctx.strokeStyle='rgba(255,190,112,.18)';ctx.lineWidth=2;ctx.strokeRect(x-145*cam.zoom,y-75*cam.zoom,290*cam.zoom,150*cam.zoom);ctx.strokeStyle='rgba(255,190,112,.25)';ctx.lineWidth=1;for(let i=0;i<6;i++){const px=x-100*cam.zoom+i*40*cam.zoom;const py=y+Math.sin(t*.001+i)*22*cam.zoom;ctx.beginPath();ctx.arc(px,py,6*cam.zoom,0,Math.PI*2);ctx.fillStyle='#a87235';ctx.fill();if(i){ctx.beginPath();ctx.moveTo(px-40*cam.zoom,y+Math.sin(t*.001+i-1)*22*cam.zoom);ctx.lineTo(px,py);ctx.stroke()}}ctx.fillStyle='#ffd6a7';ctx.font=`700 ${12*cam.zoom}px Inter`;ctx.textAlign='center';ctx.fillText('AI CORE',x,y-42*cam.zoom)}
+  function drawWebDistrict(x,y,z){ctx.fillStyle='#15263a';ctx.fillRect(x-125*cam.zoom,y-65*cam.zoom,250*cam.zoom,130*cam.zoom);ctx.fillStyle='#1d3a58';ctx.fillRect(x-100*cam.zoom,y-42*cam.zoom,200*cam.zoom,85*cam.zoom);ctx.fillStyle='#6bbcff';ctx.fillRect(x-88*cam.zoom,y-28*cam.zoom,60*cam.zoom,8*cam.zoom);for(let i=0;i<4;i++)ctx.fillStyle='rgba(107,188,255,.35)',ctx.fillRect(x-88*cam.zoom,y-6*cam.zoom+i*13*cam.zoom,140*cam.zoom,5*cam.zoom);ctx.fillStyle='#cfeeff';ctx.font=`700 ${11*cam.zoom}px Inter`;ctx.textAlign='center';ctx.fillText('WEB LAB',x,y-45*cam.zoom)}
+  function drawExamDistrict(x,y,z){ctx.fillStyle='#2a192a';ctx.fillRect(x-155*cam.zoom,y-72*cam.zoom,310*cam.zoom,144*cam.zoom);ctx.fillStyle='#5a2e58';ctx.fillRect(x-115*cam.zoom,y-42*cam.zoom,230*cam.zoom,70*cam.zoom);ctx.fillStyle='#ffb3f1';ctx.font=`700 ${13*cam.zoom}px DM Mono`;ctx.textAlign='center';ctx.fillText('EXAM',x,y-8*cam.zoom);ctx.fillStyle='#d9a8d2';ctx.font=`${8*cam.zoom}px DM Mono`;ctx.fillText('ARENA',x,y+10*cam.zoom)}
+
+  function drawProps(t){
+    props.forEach(p=>{const s=worldToScreen(p.x,p.y);ctx.save();if(p.type==='tree'){ctx.fillStyle='#0c302a';ctx.fillRect(s.x-4*cam.zoom,s.y+8*cam.zoom,8*cam.zoom,20*cam.zoom);ctx.beginPath();ctx.arc(s.x,s.y,18*cam.zoom,0,Math.PI*2);ctx.fillStyle='#123f37';ctx.fill();ctx.beginPath();ctx.arc(s.x-8*cam.zoom,s.y-7*cam.zoom,10*cam.zoom,0,Math.PI*2);ctx.fillStyle='#185044';ctx.fill()}else if(p.type==='lamp'){ctx.fillStyle='#40505e';ctx.fillRect(s.x-2*cam.zoom,s.y-14*cam.zoom,4*cam.zoom,28*cam.zoom);ctx.beginPath();ctx.arc(s.x,s.y-16*cam.zoom,7*cam.zoom,0,Math.PI*2);ctx.fillStyle='rgba(111,211,255,.35)';ctx.shadowBlur=20;ctx.shadowColor='#6fd3ff';ctx.fill()}else if(p.type==='tower'){ctx.fillStyle='#152331';ctx.fillRect(s.x-14*cam.zoom,s.y-46*cam.zoom,28*cam.zoom,92*cam.zoom);for(let i=0;i<4;i++){ctx.fillStyle='rgba(120,203,255,.28)';ctx.fillRect(s.x-9*cam.zoom,s.y-34*cam.zoom+i*20*cam.zoom,18*cam.zoom,4*cam.zoom)}}else if(p.type==='terminal'){ctx.fillStyle='#112232';drawRoundedRect(ctx,s.x-22*cam.zoom,s.y-16*cam.zoom,44*cam.zoom,32*cam.zoom,8*cam.zoom,'#112232','rgba(105,213,255,.22)');ctx.fillStyle='#76d8ff';ctx.font=`700 ${10*cam.zoom}px DM Mono`;ctx.textAlign='center';ctx.fillText('>_',s.x,s.y+4*cam.zoom)}else if(p.type==='bridge'){ctx.strokeStyle='rgba(183,208,221,.23)';ctx.lineWidth=20*cam.zoom;ctx.beginPath();ctx.moveTo(s.x-45*cam.zoom,s.y);ctx.lineTo(s.x+45*cam.zoom,s.y);ctx.stroke()}ctx.restore()})
   }
 
-  function updateClock(){ els.clock.textContent = new Date().toLocaleTimeString('ru-RU',{hour12:false}); }
-  setInterval(updateClock, 1000); updateClock();
-
-  let cameraX=state.camera.x || 0;
-  let cameraY=state.camera.y || 0;
-  let zoom=Math.min(1.35,Math.max(.82,state.zoom || 1));
-
-  function updateCamera(){ els.camera.style.transform=`translate3d(${cameraX}px,${cameraY}px,0) scale(${zoom})`; els.zoomValue.textContent=`${Math.round(zoom*100)}%`; }
-  function setCamera(x,y,save=true){ cameraX=Math.max(-220,Math.min(220,x)); cameraY=Math.max(-170,Math.min(170,y)); updateCamera(); if(save) savePlayer(); }
-  function setZoom(next){ zoom=Math.max(.82,Math.min(1.35,next)); state.zoom=zoom; persist(); updateCamera(); }
-  function movePlayer(dx,dy){
-    const target={x:Math.max(10,Math.min(90,state.player.x+dx)),y:Math.max(12,Math.min(88,state.player.y+dy))};
-    if (hitsObstacle(target.x,target.y)) { toast('Путь заблокирован объектом'); playTone(160,.035); return; }
-    state.player=target; renderPlayer(); updateNearest(); savePlayer(); playTone(250,.025);
-  }
-  function renderPlayer(){ els.player.style.left=`${state.player.x}%`; els.player.style.top=`${state.player.y}%`; els.coords.textContent=`X ${String(Math.round(state.player.x*10)).padStart(3,'0')} / Y ${String(Math.round(state.player.y*10)).padStart(3,'0')}`; }
-  function hitsObstacle(x,y){
-    const obstacles=[{x:40,y:27,r:3.7},{x:65,y:56,r:3.7},{x:32,y:61,r:3.7},{x:54,y:23,r:3.7}];
-    return obstacles.some(o => Math.hypot(x-o.x,y-o.y) < o.r + 2.5);
+  function drawNpcs(t){
+    npcs.forEach(n=>{const s=worldToScreen(n.x,n.y);const pulse=1+Math.sin(t*.004+n.x)*.08;ctx.save();ctx.beginPath();ctx.ellipse(s.x,s.y+16*cam.zoom,18*cam.zoom,7*cam.zoom,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fill();ctx.shadowBlur=18;ctx.shadowColor=hexToRgba(n.color,.35);ctx.beginPath();ctx.arc(s.x,s.y,15*cam.zoom*pulse,0,Math.PI*2);ctx.fillStyle='#1a2730';ctx.fill();ctx.strokeStyle=hexToRgba(n.color,.75);ctx.lineWidth=2*cam.zoom;ctx.stroke();ctx.fillStyle=n.color;ctx.font=`700 ${9*cam.zoom}px Inter`;ctx.textAlign='center';ctx.fillText(n.name,s.x,s.y+3*cam.zoom);ctx.font=`${7*cam.zoom}px DM Mono`;ctx.fillStyle='#7c8895';ctx.fillText(n.role,s.x,s.y+28*cam.zoom);ctx.restore()})
   }
 
-  function renderProgress(){
-    const opened=state.visited.length;
-    const level=levelFromXp(state.xp);
-    const xpNow=xpIntoLevel(state.xp);
-    const percent=Math.round((opened/ZONE_ORDER.length)*100);
-    const next=ZONE_ORDER.find(z=>!state.visited.includes(z));
-    els.progressText.textContent=`${opened} / ${ZONE_ORDER.length} ЗОН`;
-    els.progressBar.style.width=`${percent}%`;
-    els.levelNum.textContent=level;
-    els.levelRing.style.setProperty('--p',`${xpNow}%`);
-    els.xpText.textContent=`${state.xp} XP`;
-    els.heroLevel.textContent=`Уровень ${level}`;
-    els.heroXp.textContent=`${xpNow} / 100 XP`;
-    els.statsZones.textContent=opened;
-    if(next){ els.missionTitle.textContent=`Открыть ${zones[next].kicker}`; els.missionText.textContent='Найди следующую зону на карте.'; } else { els.missionTitle.textContent='Мир открыт'; els.missionText.textContent='Все основные районы исследованы.'; }
-    const skills={python:state.skill.python,ai:state.skill.ai,algo:state.skill.algo,web:state.skill.web};
-    for (const [key,val] of Object.entries(skills)) { const label=$(`#skill${key.charAt(0).toUpperCase()+key.slice(1)}`); const bar=$(`#skill${key.charAt(0).toUpperCase()+key.slice(1)}Bar`); if(label) label.textContent=`${val}%`; if(bar) bar.style.width=`${Math.min(100,val)}%`; }
-    els.discoveryList.replaceChildren();
-    ZONE_ORDER.forEach(key=>{ const z=zones[key]; const item=document.createElement('div'); item.className=`discovery ${state.visited.includes(key)?'open':''}`; const b=document.createElement('b'); b.textContent=z.kicker; b.style.color=state.visited.includes(key)?z.color:'#5b6476'; const small=document.createElement('small'); small.textContent=state.visited.includes(key)?'OPEN':'LOCKED'; item.append(b,small); els.discoveryList.appendChild(item); });
+  function drawPlayer(t){
+    const s=worldToScreen(player.x,player.y);const bob=Math.sin(t*.008)*1.6*cam.zoom;ctx.save();ctx.translate(s.x,s.y+bob);ctx.beginPath();ctx.ellipse(0,16*cam.zoom,20*cam.zoom,7*cam.zoom,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,.4)';ctx.fill();ctx.shadowBlur=28;ctx.shadowColor='rgba(105,213,255,.45)';ctx.beginPath();ctx.arc(0,0,18*cam.zoom,0,Math.PI*2);ctx.fillStyle='#0b1822';ctx.fill();ctx.strokeStyle='#6fd8ff';ctx.lineWidth=2.5*cam.zoom;ctx.stroke();ctx.beginPath();ctx.arc(0,-2*cam.zoom,8*cam.zoom,0,Math.PI*2);ctx.fillStyle='#71d7ff';ctx.fill();ctx.beginPath();ctx.moveTo(player.dirX*10*cam.zoom,player.dirY*10*cam.zoom);ctx.lineTo(player.dirX*18*cam.zoom,player.dirY*18*cam.zoom);ctx.strokeStyle='#dff8ff';ctx.lineWidth=2*cam.zoom;ctx.stroke();ctx.font=`700 ${8*cam.zoom}px DM Mono`;ctx.fillStyle='#d4e8f1';ctx.textAlign='center';ctx.fillText('YOU',0,34*cam.zoom);ctx.restore()}
+
+  function drawSecret(){ if(!state.secret){const s=worldToScreen(2080,520);ctx.save();ctx.fillStyle='#14101d';ctx.strokeStyle='rgba(197,145,255,.4)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(s.x,s.y,24*cam.zoom,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#cf9cff';ctx.font=`700 ${14*cam.zoom}px DM Mono`;ctx.textAlign='center';ctx.fillText('?',s.x,s.y+5*cam.zoom);ctx.restore();} }
+
+  function nearestTarget(){
+    let best=null,bd=95;
+    [...zones.filter(z=>z.id!=='hub'),...npcs,{id:'secret',name:'UNKNOWN NODE',x:2080,y:520}].forEach(o=>{const d=Math.hypot(player.x-o.x,player.y-o.y);if(d<bd){best=o;bd=d}});return best;
   }
 
-  function addXp(amount, reason){ state.xp += amount; persist(); renderProgress(); toast(`+${amount} XP — ${reason}`); playTone(560,.07); }
+  function updateNearby(){nearby=nearestTarget();const hint=document.getElementById('hint');if(nearby){hint.classList.add('show');document.getElementById('hintText').textContent=nearby.id==='secret'?'Сканировать неизвестный узел':nearby.id==='byte'||nearby.id==='ada'||nearby.id==='max'?`Поговорить с ${nearby.name}`:state.discovered.includes(nearby.id)?`Войти в ${nearby.name}`:`Исследовать ${nearby.name}`}else hint.classList.remove('show');}
 
-  function openModal(modal){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); els.backdrop.classList.add('open'); els.body.classList.add('locked'); }
-  function closeModal(modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); if(!document.querySelector('.modal.open')){ els.backdrop.classList.remove('open'); els.body.classList.remove('locked'); } }
-  function closeAll(){ $$('.modal.open').forEach(closeModal); }
-
-  function openZone(key){
-    const z=zones[key]; if(!z) return;
-    activeZone=key;
-    const firstOpen=!state.visited.includes(key);
-    if(firstOpen){ state.visited.push(key); persist(); addXp(20, `${z.kicker} открыт`); if (z.skill) { state.skill[z.skill]=Math.min(100,state.skill[z.skill]+Math.round(z.skillGain/2)); persist(); } }
-    els.modalIcon.textContent=z.icon; els.modalIcon.style.color=z.color; els.modalKicker.textContent=z.kicker; els.zoneTitle.textContent=z.title; els.modalDesc.textContent=z.desc; els.modalChips.replaceChildren(); z.meta.forEach(m=>{ const s=document.createElement('span'); s.textContent=m; els.modalChips.appendChild(s); }); els.modalList.replaceChildren(); z.list.forEach(x=>{const li=document.createElement('li');li.textContent=x;els.modalList.appendChild(li);}); els.modalMission.textContent=z.mission;
-    els.zoneActionBtn.innerHTML = state.missions.includes(key) ? 'Миссия выполнена <span>✓</span>' : `Начать миссию <span>→</span>`;
-    renderProgress(); openModal(els.zoneModal); playTone(380,.045);
+  function isBlocked(x,y){
+    if(x<120||x>WORLD.w-120||y<120||y>WORLD.h-120)return true;
+    // water area
+    if(x>1310&&x<1810&&y>785&&y<1080)return true;
+    return false;
   }
 
-  function openLesson(key){
-    const z=zones[key]; if(!z) return;
-    els.lessonTitle.textContent=`Миссия: ${z.kicker}`;
-    els.lessonIntro.textContent='Сделай маленькое действие. Здесь важна не скорость, а самостоятельность.';
-    els.challengeBox.innerHTML='';
-    const p=document.createElement('p'); p.textContent=z.mission; els.challengeBox.appendChild(p);
-    if(key==='python'){ const pre=document.createElement('pre'); pre.textContent='a = 7\nb = 5\n# твоя задача: вывести сумму'; els.challengeBox.appendChild(pre); }
-    if(key==='web'){ const pre=document.createElement('pre'); pre.textContent='<button id="magic">Нажми меня</button>\n// добавь JavaScript, который меняет текст'; els.challengeBox.appendChild(pre); }
-    els.completeMissionBtn.innerHTML=state.missions.includes(key)?'Миссия уже выполнена <span>✓</span>':`Выполнено <span>+${z.xp} XP</span>`;
-    openModal(els.lessonModal);
+  function updatePlayer(dt){
+    let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy-=1;if(keys.has('s')||keys.has('arrowdown'))dy+=1;if(keys.has('a')||keys.has('arrowleft'))dx-=1;if(keys.has('d')||keys.has('arrowright'))dx+=1;if(dx||dy){const m=Math.hypot(dx,dy);dx/=m;dy/=m;player.dirX=dx;player.dirY=dy;const nx=player.x+dx*player.speed*dt,ny=player.y+dy*player.speed*dt;if(!isBlocked(nx,player.y))player.x=nx;if(!isBlocked(player.x,ny))player.y=ny;player.bob+=dt*10}cam.x=lerp(cam.x,player.x,.07);cam.y=lerp(cam.y,player.y,.07);updateNearby();document.getElementById('coordinate').textContent=`X ${Math.round(player.x)} · Y ${Math.round(player.y)}`}
+
+  function updateUI(){
+    const level=Math.max(1,Math.floor(state.xp/100)+1);state.level=level;const current=state.xp%100;document.getElementById('levelValue').textContent=level;document.getElementById('xpValue').textContent=state.xp;document.getElementById('xpBar').style.width=current+'%';
+    const count=state.discovered.filter(id=>zones.some(z=>z.id===id&&z.id!=='hub')).length;document.getElementById('discoverCount').textContent=count;document.getElementById('discoverBar').style.width=(count/5*100)+'%';
+    ['python','ai','algo','web'].forEach(sk=>{const el=document.querySelector(`.skill[data-skill="${sk}"]`);const v=clamp(state.skills[sk]||0,0,100);el.querySelector('b').textContent=v+'%';el.querySelector('.skill-bar span').style.width=v+'%'});
+    const mission=nextMission();document.getElementById('missionTitle').textContent=mission.title;document.getElementById('missionText').textContent=mission.text;
+    document.getElementById('locationName').textContent=currentZone()?.name||'ЦЕНТР ИНФО';document.getElementById('locationSub').textContent=currentZone()?.sub||'STARTING DISTRICT';
+    buildNav();
+  }
+  function buildNav(){const list=document.getElementById('navList');list.innerHTML='';zones.filter(z=>z.id!=='hub').forEach(z=>{const open=state.discovered.includes(z.id)||state.level>=z.level;const done=state.completed.includes(z.id);const item=document.createElement('button');item.className='nav-item'+(currentZone()?.id===z.id?' active':'');item.innerHTML=`<span>${z.name}</span><span>${done?'DONE':open?'OPEN':'LV '+z.level}</span>`;item.addEventListener('click',()=>focusZone(z.id));list.appendChild(item)})}
+  function currentZone(){return zones.slice().sort((a,b)=>{const da=Math.abs(player.x-a.x)+Math.abs(player.y-a.y),db=Math.abs(player.x-b.x)+Math.abs(player.y-b.y);return da-db})[0]}
+
+  function nextMission(){
+    const order=['python','algo','ai','web','exam'];
+    for(const id of order){const z=zones.find(v=>v.id===id);if(!state.discovered.includes(id))return {title:`Открыть ${z.name.replace(' DISTRICT','')}`,text:`Найди район и доберись до его входа.`};if(!state.completed.includes(id))return {title:z.mission,text:z.text}}
+    if(!state.secret)return {title:'Найти неизвестный узел',text:'Исследуй дальний восточный сектор мира.'};
+    return {title:'Исследовать INFO.WORLD',text:'Все основные зоны открыты. Создавай собственные проекты.'};
   }
 
-  function completeMission(){
-    if(!activeZone) return;
-    const z=zones[activeZone];
-    if(state.missions.includes(activeZone)){ toast('Эта миссия уже выполнена'); return; }
-    state.missions.push(activeZone); if(z.skill) state.skill[z.skill]=Math.min(100,state.skill[z.skill]+z.skillGain); persist(); addXp(z.xp, `${z.kicker}: миссия завершена`); renderProgress(); closeModal(els.lessonModal); closeModal(els.zoneModal);
+  function focusZone(id){const z=zones.find(v=>v.id===id);if(!z)return;cam.x=z.x;cam.y=z.y;showToast(`${z.name} в фокусе`)}
+  function openZone(z){
+    if(state.level<z.level){showToast(`Требуется уровень ${z.level}`);return}
+    state.discovered=[...new Set([...state.discovered,z.id])];if(z.id!=='hub'&&!state.visited.includes(z.id)){state.visited.push(z.id);state.xp+=10;showToast(`Зона открыта · +10 XP`)}save();updateUI();openModal(z);playTone(520,.07);
   }
+  function openNpc(n){showToast(`${n.name}: ${n.line}`);if(!state.visited.includes(n.id)){state.visited.push(n.id);state.xp+=n.reward;showToast(`${n.name} наградил тебя · +${n.reward} XP`);save();updateUI()}playTone(640,.06)}
+  function openSecret(){if(state.discovered.filter(x=>x!=='hub').length<3){showToast('Узел скрыт. Открой 3 района.');return}state.secret=true;state.xp+=50;save();updateUI();showToast('Секрет найден · +50 XP');playTone(800,.12)}
 
-  function openNpc(key){
-    const n=npcs[key]; if(!n) return;
-    activeNpc=key;
-    els.npcIcon.textContent=n.icon; els.npcIcon.style.color=n.color; els.npcKicker.textContent=n.kicker; els.npcTitle.textContent=n.title; els.npcText.textContent=n.text; els.npcQuote.textContent=n.quote;
-    els.npcRewardBtn.innerHTML=state.npcs.includes(key)?'Совет уже получен <span>✓</span>':`Забрать совет <span>+${n.reward} XP</span>`;
-    openModal(els.npcModal); playTone(310,.04);
-  }
-  function rewardNpc(){
-    if(!activeNpc) return; const n=npcs[activeNpc]; if(state.npcs.includes(activeNpc)){toast('Ты уже получил этот совет');return;} state.npcs.push(activeNpc); persist(); addXp(n.reward,`совет ${n.title}`); closeModal(els.npcModal);
-  }
+  function openModal(z){modalZone=z;document.getElementById('modalTitle').textContent=z.name;document.getElementById('modalCode').textContent=`NODE ${String(z.level).padStart(2,'0')}`;document.getElementById('modalStatus').textContent=state.completed.includes(z.id)?'COMPLETED':state.discovered.includes(z.id)?'OPEN':'LOCKED';document.getElementById('modalDescription').textContent=z.description;document.getElementById('modalFocus').textContent=z.focus;document.getElementById('modalLevel').textContent=`Уровень ${z.level}+`;document.getElementById('modalMission').textContent=z.mission;document.getElementById('modalMissionText').textContent=z.text;const btn=document.getElementById('modalAction');btn.disabled=false;btn.textContent=state.completed.includes(z.id)?'Повторить':'Начать';document.getElementById('modalBackdrop').hidden=false}
+  function closeModal(){document.getElementById('modalBackdrop').hidden=true;modalZone=null}
+  document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop')closeModal()});
+  document.getElementById('modalAction').addEventListener('click',()=>{if(!modalZone)return;if(!state.completed.includes(modalZone.id)){state.completed.push(modalZone.id);state.xp+=35;if(modalZone.skill&&state.skills[modalZone.skill]!=null)state.skills[modalZone.skill]=clamp(state.skills[modalZone.skill]+25,0,100);save();updateUI();showToast(`${modalZone.name} · миссия завершена · +35 XP`);playTone(780,.12)}else{showToast('Миссия уже завершена. Попробуй снова.')}closeModal()});
 
-  const interactionTargets=[...$$('.zone-node')].map(el=>({type:'zone',key:el.dataset.zone,el})).concat([...$$('.npc')].map(el=>({type:'npc',key:el.dataset.npc,el})));
-  function updateNearest(){
-    let best=null,bestDist=8;
-    interactionTargets.forEach(t=>{ const x=parseFloat(t.el.style.left), y=parseFloat(t.el.style.top); const d=Math.hypot(state.player.x-x,state.player.y-y); if(d<bestDist){best=t;bestDist=d;} });
-    nearest=best;
-    if(best){ const label=best.type==='zone'?zones[best.key].kicker:npcs[best.key].title; els.interactTitle.textContent=best.type==='zone'?'Открыть зону':'Поговорить'; els.interactText.textContent=label; els.interactHint.classList.add('show'); els.interactHint.style.left=`${parseFloat(best.el.style.left)}%`; els.interactHint.style.top=`${parseFloat(best.el.style.top)-6}%`; }
-    else els.interactHint.classList.remove('show');
-  }
+  function interact(){if(!nearby)return;if(nearby.id==='secret')return openSecret();if(['byte','ada','max'].includes(nearby.id))return openNpc(nearby);return openZone(nearby)}
 
-  function interact(){ if(!nearest){toast('Подойди ближе к объекту'); return;} if(nearest.type==='zone') openZone(nearest.key); else openNpc(nearest.key); }
+  function playTone(freq,dur){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=freq;o.type='sine';g.gain.value=.001;o.connect(g);g.connect(ac.destination);const now=ac.currentTime;g.gain.exponentialRampToValueAtTime(.05,now+.01);g.gain.exponentialRampToValueAtTime(.001,now+dur);o.start(now);o.stop(now+dur+.02)}catch{}}
 
-  function focusPlayer(){ setCamera(0,0); setZoom(1); els.player.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.28)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:450,easing:'ease-out'}); }
+  function pointerDown(e){if(e.pointerType==='touch'&&e.target.closest('.touch-pad'))return;cam.drag=true;cam.sx=e.clientX;cam.sy=e.clientY;cam.ox=cam.x;cam.oy=cam.y;canvas.setPointerCapture?.(e.pointerId)}
+  function pointerMove(e){if(!cam.drag)return;const dx=(e.clientX-cam.sx)/cam.zoom,dy=(e.clientY-cam.sy)/cam.zoom;cam.x=clamp(cam.ox-dx,WORLD.w*.12,WORLD.w*.88);cam.y=clamp(cam.oy-dy,WORLD.h*.12,WORLD.h*.88)}
+  function pointerUp(){cam.drag=false}
+  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
+  canvas.addEventListener('wheel',e=>{e.preventDefault();const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom)showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)},{passive:false});
+  document.getElementById('zoomIn').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*1.1,.55,1.5));document.getElementById('zoomOut').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*.9,.55,1.5));document.getElementById('recenter').addEventListener('click',()=>{cam.x=player.x;cam.y=player.y});document.getElementById('brandBtn').addEventListener('click',()=>{cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
+  document.getElementById('helpBtn').addEventListener('click',()=>openHelp());document.getElementById('profileBtn').addEventListener('click',()=>showToast(`Уровень ${state.level} · ${state.xp} XP`));
+  document.getElementById('mobileProgressBtn').addEventListener('click',()=>document.getElementById('rightPanel').classList.toggle('open'));document.getElementById('mobileMenuBtn').addEventListener('click',()=>{document.getElementById('leftPanel').style.display=document.getElementById('leftPanel').style.display==='flex'?'none':'flex';document.getElementById('leftPanel').style.position='absolute';document.getElementById('leftPanel').style.zIndex='22';document.getElementById('leftPanel').style.left='8px';document.getElementById('leftPanel').style.top='8px';document.getElementById('leftPanel').style.bottom='8px';document.getElementById('leftPanel').style.width='250px'});
 
-  function randomZone(){ const unlocked=ZONE_ORDER.filter(k=>k!=='game' || state.visited.length>=3); const key=unlocked[Math.floor(Math.random()*unlocked.length)]; const node=$(`.zone-node[data-zone="${key}"]`); node?.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.24)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:700}); openZone(key); }
+  function openHelp(){const h=zones.find(z=>z.id==='hub');document.getElementById('modalTitle').textContent='Как устроен INFO.WORLD';document.getElementById('modalCode').textContent='HELP 00';document.getElementById('modalStatus').textContent='ONLINE';document.getElementById('modalDescription').textContent='Это интерактивный мир, где обучение встроено в исследование. Иди по дорогам, подходи к зданиям и персонажам, нажимай E и открывай новые районы.';document.getElementById('modalFocus').textContent='Исследование';document.getElementById('modalLevel').textContent='Без ограничений';document.getElementById('modalMission').textContent='Начни с Python';document.getElementById('modalMissionText').textContent='Твоя первая цель — найти Python District. Каждое открытие и миссия дают XP и развивают навыки.';document.getElementById('modalAction').textContent='Понятно';document.getElementById('modalAction').onclick=closeModal;document.getElementById('modalBackdrop').hidden=false}
 
-  function playTone(freq=440,duration=.04){
-    if(!state.sound) return;
-    try{
-      audioCtx ??= new (window.AudioContext||window.webkitAudioContext)();
-      if(audioCtx.state==='suspended') audioCtx.resume();
-      const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type='sine'; o.frequency.value=freq; g.gain.setValueAtTime(.0001,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.022,audioCtx.currentTime+.01); g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+duration); o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+duration+.02);
-    }catch{}
-  }
+  document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='e'){e.preventDefault();interact()}else if(k==='escape'){closeModal()}else if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys.add(k)}});document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+  document.querySelectorAll('#touchPad [data-dir]').forEach(btn=>{const map={up:'w',down:'s',left:'a',right:'d'};const start=e=>{e.preventDefault();keys.add(map[btn.dataset.dir])};const end=e=>{e.preventDefault();keys.delete(map[btn.dataset.dir])};btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',end);btn.addEventListener('pointerleave',end)});
 
-  function bootSequence(){
-    const lines=['INITIALIZING KNOWLEDGE CORE','MAPPING DISTRICTS','CONNECTING AI LAB','CALIBRATING PLAYER NODE','WORLD READY']; let p=0,i=0;
-    const timer=setInterval(()=>{ p=Math.min(100,p+Math.random()*14+9); els.bootProgress.style.width=`${p}%`; els.bootPercent.textContent=`${Math.round(p)}%`; i=Math.min(lines.length-1,Math.floor(p/24)); els.bootLine.textContent=lines[i]; if(p>=100){clearInterval(timer);els.bootEnter.disabled=false;els.bootEnter.classList.add('ready');}},140);
-  }
-  function enterWorld(){ els.boot.classList.add('hide'); els.body.classList.remove('locked'); setTimeout(()=>els.boot.remove(),700); playTone(520,.06); }
+  function loop(now){const dt=Math.min(.032,(now-last)/1000);last=now;updatePlayer(dt);drawBackground(now);drawGrid();drawWater();drawRoads();zones.forEach(z=>drawZone(z,now));drawProps(now);drawNpcs(now);drawSecret();drawPlayer(now);requestAnimationFrame(loop)}
 
-  function setupDrag(){
-    els.stage.addEventListener('pointerdown',e=>{
-      if(e.target.closest('.zone-node,.npc,.player,.stage-toolbar,.mobile-controls,.map-legend,.interact-hint')) return;
-      drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,baseX:cameraX,baseY:cameraY,moved:false}; els.stage.setPointerCapture?.(e.pointerId); els.body.classList.add('map-dragging');
-    });
-    els.stage.addEventListener('pointermove',e=>{ if(!drag) return; const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY; if(Math.abs(dx)+Math.abs(dy)>6) drag.moved=true; setCamera(drag.baseX+dx,drag.baseY+dy,false); });
-    const end=e=>{ if(!drag) return; suppressNextClick=drag.moved; drag=null; els.body.classList.remove('map-dragging'); state.camera={x:cameraX,y:cameraY}; persist(); if(e?.pointerId!=null) els.stage.releasePointerCapture?.(e.pointerId); if(suppressNextClick) setTimeout(()=>{suppressNextClick=false;},0); };
-    els.stage.addEventListener('pointerup',end); els.stage.addEventListener('pointercancel',end);
-  }
+  async function bootSequence(){let n=0;const timer=setInterval(()=>{n+=Math.floor(Math.random()*10)+5;if(n>=100){n=100;clearInterval(timer);setTimeout(()=>{boot.style.opacity='0';setTimeout(()=>{boot.remove();app.classList.add('ready');app.removeAttribute('aria-hidden')},380)},260)}bootProgress.style.width=n+'%';bootPercent.textContent=n+'%'},85)}
 
-  function setupWheel(){
-    els.stage.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(zoom+(e.deltaY<0?.07:-.07)); },{passive:false});
-  }
-
-  function setupPointerParallax(){
-    els.stage.addEventListener('pointermove',e=>{ if(drag) return; const r=els.stage.getBoundingClientRect(); const nx=(e.clientX-r.left)/r.width-.5; const ny=(e.clientY-r.top)/r.height-.5; document.querySelectorAll('.glow').forEach((g,i)=>g.style.transform=`translate(${nx*(i===1?-18:12)}px,${ny*(i===1?-14:10)}px)`); });
-  }
-
-  function wire(){
-    els.bootEnter.addEventListener('click',enterWorld);
-    els.enterMapBtn.addEventListener('click',()=>els.world?.scrollIntoView?.({behavior:'smooth',block:'center'}));
-    els.randomBtn.addEventListener('click',randomZone);
-    els.aboutBtn.addEventListener('click',()=>openModal(els.aboutModal));
-    els.soundBtn.addEventListener('click',()=>{ state.sound=!state.sound; persist(); els.soundBtn.textContent=state.sound?'●':'◉'; toast(state.sound?'Звук включён':'Звук выключен'); if(state.sound)playTone(520,.06); });
-    $('#zoomIn').addEventListener('click',()=>setZoom(zoom+.08)); $('#zoomOut').addEventListener('click',()=>setZoom(zoom-.08)); $('#resetView').addEventListener('click',()=>{setCamera(0,0);setZoom(1)}); $('#focusPlayer').addEventListener('click',focusPlayer); $('#gridBtn').addEventListener('click',()=>document.body.classList.toggle('grid-off'));
-    els.missionBtn.addEventListener('click',()=>{ const key=ZONE_ORDER.find(k=>!state.visited.includes(k)); if(key){ const node=$(`.zone-node[data-zone="${key}"]`); node?.animate([{transform:'translate(-50%,-50%) scale(.95)'},{transform:'translate(-50%,-50%) scale(1.2)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:750}); toast(`Цель: открой ${zones[key].kicker}`); } else toast('Основные зоны уже открыты'); });
-    els.zoneActionBtn.addEventListener('click',()=>{ if(activeZone) openLesson(activeZone); });
-    els.completeMissionBtn.addEventListener('click',completeMission);
-    els.programBtn.addEventListener('click',()=>{ if(activeZone) toast(`${zones[activeZone].kicker}: программа будет расширена следующими уроками`); });
-    els.npcRewardBtn.addEventListener('click',rewardNpc);
-    $$('.zone-node').forEach(node=>node.addEventListener('click',e=>{if(suppressNextClick){suppressNextClick=false;return;}openZone(node.dataset.zone)}));
-    $$('.npc').forEach(node=>node.addEventListener('click',e=>{if(suppressNextClick){suppressNextClick=false;return;}openNpc(node.dataset.npc)}));
-    $$('[data-move]').forEach(btn=>btn.addEventListener('click',()=>{const m=btn.dataset.move;movePlayer(m==='left'?-2:m==='right'?2:0,m==='up'?-2:m==='down'?2:0)}));
-    $$('[data-close-modal]').forEach(btn=>btn.addEventListener('click',()=>closeModal(document.getElementById(btn.dataset.closeModal))));
-    $$('[data-open]').forEach(btn=>btn.addEventListener('click',()=>document.getElementById(btn.dataset.open)?.classList.add('open')));
-    $$('[data-close]').forEach(btn=>btn.addEventListener('click',()=>document.getElementById(btn.dataset.close)?.classList.remove('open')));
-    $('#mobileMenuBtn').addEventListener('click',()=>$('#rightPanel').classList.toggle('open'));
-    els.backdrop.addEventListener('click',closeAll);
-    document.addEventListener('keydown',e=>{
-      if(e.key==='Escape'){closeAll();return;}
-      if(e.key.toLowerCase()==='e'){ if(document.querySelector('.modal.open')) return; interact(); }
-      if(document.querySelector('.modal.open')) return;
-      const k=e.key.toLowerCase(); if(['arrowup','w'].includes(k))movePlayer(0,-2); else if(['arrowdown','s'].includes(k))movePlayer(0,2); else if(['arrowleft','a'].includes(k))movePlayer(-2,0); else if(['arrowright','d'].includes(k))movePlayer(2,0); else if(k==='+'||k==='=')setZoom(zoom+.08); else if(k==='-')setZoom(zoom-.08);
-    });
-  }
-
-  renderPlayer(); renderProgress(); updateCamera(); updateNearest(); createStars(); setupDrag(); setupWheel(); setupPointerParallax(); wire(); bootSequence();
-  window.addEventListener('resize',()=>{createStars();updateNearest();});
+  resize();updateUI();cam.x=player.x;cam.y=player.y;bootSequence();requestAnimationFrame(loop);window.addEventListener('beforeunload',save);setInterval(save,4000);
 })();
