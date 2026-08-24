@@ -73,10 +73,10 @@
   function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
   function lerp(a,b,t){return a+(b-a)*t}
   function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-  function worldToScreen(x,y){return {x:(x-cam.x)*cam.zoom+canvas.width/2,y:(y-cam.y)*cam.zoom+canvas.height/2}}
+  function worldToScreen(x,y){return {x:(x-cam.x)*cam.zoom+canvas._cssW/2,y:(y-cam.y)*cam.zoom+canvas._cssH/2}}
   function screenToWorld(x,y){return {x:(x-canvas._cssW/2)/cam.zoom+cam.x,y:(y-canvas._cssH/2)/cam.zoom+cam.y}}
 
-  function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);canvas._cssW=r.width;canvas._cssH=r.height;}
+  function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));canvas._dpr=dpr;canvas._cssW=r.width;canvas._cssH=r.height;ctx.setTransform(dpr,0,0,dpr,0,0);}
   window.addEventListener('resize',resize);
 
   function drawRoundedRect(c,x,y,w,h,r,fill,stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.stroke()}}
@@ -263,7 +263,7 @@
   }
   function pickAtCanvas(clientX,clientY){
     const r=canvas.getBoundingClientRect();
-    const p=screenToWorld((clientX-r.left)*(canvas.width/r.width),(clientY-r.top)*(canvas.height/r.height));
+    const p=screenToWorld(clientX-r.left,clientY-r.top);
     const candidates=[...zones.filter(z=>z.id!=='hub'),...npcs,{id:'secret',name:'UNKNOWN NODE',x:2080,y:520}];
     const npcHit=candidates.filter(o=>['byte','ada','max','secret'].includes(o.id)).sort((a,b)=>Math.hypot(p.x-a.x,p.y-a.y)-Math.hypot(p.x-b.x,p.y-b.y))[0];
     if(npcHit && Math.hypot(p.x-npcHit.x,p.y-npcHit.y)<55)return npcHit;
@@ -282,7 +282,8 @@
     }
     cam.drag=false;
   }
-  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',()=>{cam.drag=false});
+  canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',()=>{cam.drag=false;pointerMoved=false});
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('wheel',e=>{e.preventDefault();cam.follow=false;const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom)showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)},{passive:false});
   document.getElementById('zoomIn').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*1.1,.55,1.5));document.getElementById('zoomOut').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*.9,.55,1.5));document.getElementById('recenter').addEventListener('click',()=>{cam.follow=true;cam.x=player.x;cam.y=player.y});document.getElementById('brandBtn').addEventListener('click',()=>{cam.follow=true;cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
   document.getElementById('helpBtn').addEventListener('click',()=>openHelp());document.getElementById('profileBtn').addEventListener('click',()=>showToast(`Уровень ${state.level} · ${state.xp} XP`));
