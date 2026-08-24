@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060812">
+  <meta name="description" content="ИНФО.WORLD — интерактивный мир для изучения информатики, программирования, AI, Web и подготовки к ОГЭ и ЕГЭ.">
+  <title>ИНФО.WORLD — цифровой мир информатики</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="locked">
+  <div class="noise" aria-hidden="true"></div>
+
+  <div class="boot" id="boot">
+    <div class="boot-grid"></div>
+    <div class="boot-orbit orbit-a"></div>
+    <div class="boot-orbit orbit-b"></div>
+    <div class="boot-center">
+      <div class="boot-brand">ИНФО<span>.</span>WORLD</div>
+      <div class="boot-sub">DIGITAL EDUCATION UNIVERSE / NODE 01</div>
+      <div class="boot-log" aria-live="polite">
+        <span class="led"></span>
+        <span id="bootLine">INITIALIZING KNOWLEDGE CORE</span>
+        <span class="caret">_</span>
+      </div>
+      <div class="boot-progress"><i id="bootProgress"></i></div>
+      <div class="boot-meta"><span id="bootPercent">0%</span><span>BUILD 1.0.0</span></div>
+      <button class="boot-enter" id="bootEnter" disabled>Войти в мир <span>↗</span></button>
+      <small class="boot-note">Интерактивная карта работает без регистрации. Прогресс сохраняется на этом устройстве.</small>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#top">ИНФО<span>.</span>WORLD</a>
+    <div class="top-status"><i></i><span>WORLD ONLINE</span><b>/</b><span id="clock">00:00:00</span></div>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundBtn" aria-label="Переключить звук" title="Звук">◉</button>
+      <button class="icon-btn" id="aboutBtn" aria-label="О мире" title="О мире">?</button>
+      <button class="icon-btn mobile-only" id="mobileMenuBtn" aria-label="Открыть панели">☰</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero content-width">
+      <div class="hero-main">
+        <div class="eyebrow"><span></span>INTERACTIVE LEARNING WORLD</div>
+        <h1>Информатика,<br><strong>которую хочется исследовать.</strong></h1>
+        <p>Курсы превращаются в районы, уроки — в миссии, а прогресс — в карту. Исследуй, играй и учись на практике.</p>
+        <div class="hero-actions">
+          <button class="primary-btn" id="enterMapBtn">Начать исследование <span>↓</span></button>
+          <button class="secondary-btn" id="randomBtn">Случайная зона <span>⌘</span></button>
+        </div>
+      </div>
+
+      <div class="hero-aside">
+        <div class="profile-card">
+          <div class="avatar">01</div>
+          <div><span>ИССЛЕДОВАТЕЛЬ</span><b id="heroLevel">Уровень 1</b></div>
+          <em id="heroXp">0 / 100 XP</em>
+        </div>
+        <div class="secret-card"><i>✦</i><div><b>Секрет мира</b><span>Некоторые задания открывают скрытые области.</span></div></div>
+      </div>
+    </section>
+
+    <section class="world content-width" id="world">
+      <aside class="panel left-panel" id="leftPanel">
+        <div class="panel-title"><span>СИСТЕМА</span><button class="close-panel" data-close="leftPanel">×</button></div>
+        <div class="core-card"><div class="core-icon">⌁</div><div><b>WORLD CORE</b><span>Система стабильна</span></div><i></i></div>
+        <div class="panel-label">ОТКРЫТИЯ</div>
+        <div id="discoveryList" class="discovery-list"></div>
+        <div class="panel-label">СОВЕТ</div>
+        <div class="tip-card"><span>WASD</span><p>Перемещай персонажа по карте или используй мобильный контроллер.</p></div>
+        <div class="panel-foot"><span>NODE 01</span><span>INFO.WORLD</span></div>
+      </aside>
+
+      <div class="stage" id="stage" aria-label="Интерактивная карта">
+        <div class="glow glow-a"></div><div class="glow glow-b"></div><div class="glow glow-c"></div>
+        <div class="stars" id="stars"></div>
+        <div class="stage-grid" id="stageGrid"></div>
+        <div class="camera" id="camera">
+          <div class="map" id="map">
+            <div class="map-atmosphere"></div>
+            <div class="map-title"><small>KNOWLEDGE IS A PLACE</small><b>INFO<span>.</span>WORLD</b></div>
+
+            <div class="district d-north"><span>NORTH DATA</span></div>
+            <div class="district d-west"><span>CODE DISTRICT</span></div>
+            <div class="district d-center"><span>CORE</span></div>
+            <div class="district d-east"><span>FUTURE LABS</span></div>
+            <div class="district d-south"><span>CREATIVE YARD</span></div>
+
+            <div class="water water-a"></div><div class="water water-b"></div>
+            <div class="road r-a"></div><div class="road r-b"></div><div class="road r-c"></div><div class="road r-d"></div><div class="road r-e"></div>
+
+            <div class="structure" data-obstacle="true" style="left:40%;top:27%"><span>▣</span><small>DATA TOWER</small></div>
+            <div class="structure" data-obstacle="true" style="left:65%;top:56%"><span>▤</span><small>ARCHIVE</small></div>
+            <div class="structure" data-obstacle="true" style="left:32%;top:61%"><span>&gt;_</span><small>CODE NODE</small></div>
+            <div class="structure" data-obstacle="true" style="left:54%;top:23%"><span>⌁</span><small>SIGNAL HUB</small></div>
+
+            <div class="npc npc-byte" data-npc="byte" style="left:46%;top:67%">
+              <span class="npc-shadow"></span><span class="npc-avatar">B</span><div class="npc-label"><b>BYTE</b><small>mentor</small></div>
+            </div>
+            <div class="npc npc-ada" data-npc="ada" style="left:82%;top:42%">
+              <span class="npc-shadow"></span><span class="npc-avatar">A</span><div class="npc-label"><b>ADA</b><small>researcher</small></div>
+            </div>
+            <div class="npc npc-max" data-npc="max" style="left:18%;top:64%">
+              <span class="npc-shadow"></span><span class="npc-avatar">M</span><div class="npc-label"><b>MAX</b><small>maker</small></div>
+            </div>
+
+            <button class="zone-node node-python" data-zone="python" style="left:18%;top:27%"><span class="node-ring"></span><strong>&lt;/&gt;</strong><label><b>PYTHON</b><small>CODE DISTRICT</small></label><em>OPEN</em></button>
+            <button class="zone-node node-ai" data-zone="ai" style="left:78%;top:26%"><span class="node-ring"></span><strong>✦</strong><label><b>AI LAB</b><small>NEURAL CORE</small></label><em>OPEN</em></button>
+            <button class="zone-node node-algo" data-zone="algo" style="left:50%;top:45%"><span class="node-ring"></span><strong>∑</strong><label><b>ALGO CITY</b><small>LOGIC DISTRICT</small></label><em>OPEN</em></button>
+            <button class="zone-node node-web" data-zone="web" style="left:18%;top:78%"><span class="node-ring"></span><strong>◈</strong><label><b>WEB LAB</b><small>INTERFACE DISTRICT</small></label><em>OPEN</em></button>
+            <button class="zone-node node-exam" data-zone="exam" style="left:80%;top:75%"><span class="node-ring"></span><strong>01</strong><label><b>EXAM ARENA</b><small>ОГЭ / ЕГЭ</small></label><em>MISSION</em></button>
+            <button class="zone-node node-game" data-zone="game" style="left:54%;top:83%"><span class="node-ring"></span><strong>⌁</strong><label><b>GAME GARAGE</b><small>CREATE &amp; PLAY</small></label><em>SOON</em></button>
+
+            <div class="player" id="player" tabindex="0" aria-label="Ваш персонаж"><span class="player-ring"></span><span class="player-shadow"></span><b>01</b><small>YOU</small></div>
+            <div class="interact-hint" id="interactHint"><span>E</span><div><b id="interactTitle">Взаимодействовать</b><small id="interactText">Подойдите ближе</small></div></div>
+            <div class="quest-marker" id="questMarker"><span>!</span><b>MAIN QUEST</b></div>
+          </div>
+        </div>
+
+        <div class="stage-toolbar">
+          <div class="tool-group"><button class="tool-btn" id="zoomOut">−</button><span id="zoomValue">100%</span><button class="tool-btn" id="zoomIn">+</button><button class="tool-btn" id="resetView">⌂</button></div>
+          <div class="tool-group"><button class="tool-btn" id="focusPlayer" title="Найти персонажа">◎</button><button class="tool-btn" id="gridBtn" title="Сетка">#</button></div>
+        </div>
+        <div class="map-legend"><span>DRAG</span> перемещай карту <span>·</span><span>SCROLL</span> zoom <span>·</span><span>E</span> взаимодействие</div>
+        <div class="mobile-controls" aria-label="Управление персонажем"><button data-move="up">↑</button><div><button data-move="left">←</button><button class="center">•</button><button data-move="right">→</button></div><button data-move="down">↓</button></div>
+      </div>
+
+      <aside class="panel right-panel" id="rightPanel">
+        <div class="panel-title"><span>ПРОГРЕСС</span><button class="close-panel" data-close="rightPanel">×</button></div>
+        <div class="level-card"><div class="level-ring" id="levelRing"><strong id="levelNum">1</strong><span>LEVEL</span></div><div><span>ОБЩИЙ ПРОГРЕСС</span><b id="progressText">0 / 6 ЗОН</b><small id="xpText">0 XP</small></div></div>
+        <div class="progress-track"><i id="progressBar"></i></div>
+        <div class="panel-label">БЛИЖАЙШАЯ ЦЕЛЬ</div>
+        <div class="mission-card"><div class="mission-num">01</div><div><b id="missionTitle">Открыть AI LAB</b><span id="missionText">Найди следующую зону на карте.</span></div></div>
+        <button class="panel-button" id="missionBtn">Показать цель <span>→</span></button>
+        <div class="panel-label">НАВЫКИ</div>
+        <div class="skill"><div><span>Python</span><b id="skillPython">0%</b></div><i><em id="skillPythonBar"></em></i></div>
+        <div class="skill"><div><span>AI</span><b id="skillAI">0%</b></div><i><em id="skillAIBar"></em></i></div>
+        <div class="skill"><div><span>Алгоритмы</span><b id="skillAlgo">0%</b></div><i><em id="skillAlgoBar"></em></i></div>
+        <div class="skill"><div><span>Web</span><b id="skillWeb">0%</b></div><i><em id="skillWebBar"></em></i></div>
+        <div class="panel-foot"><span id="coords">X 000 / Y 000</span><span>ONLINE</span></div>
+      </aside>
+    </section>
+
+    <section class="below content-width">
+      <div class="section-heading"><div><div class="eyebrow"><span></span>WHY INFO.WORLD</div><h2>Не каталог.<br><strong>Среда.</strong></h2></div><p>Смысл сайта — не в количестве карточек. Он должен заставлять пользователя двигаться, пробовать и возвращаться.</p></div>
+      <div class="feature-grid">
+        <article class="feature"><span>01</span><div class="feature-art code-art"><b>def</b> learn():<i>return "project"</i></div><h3>Учись через действие</h3><p>Каждое направление заканчивается конкретным действием: кодом, решением, экспериментом или проектом.</p></article>
+        <article class="feature"><span>02</span><div class="feature-art graph-art"><i></i><i></i><i></i><i></i><i></i></div><h3>Открывай связи</h3><p>Python ведёт к AI, алгоритмы — к экзаменам, Web — к своим продуктам. Карта помогает видеть систему целиком.</p></article>
+        <article class="feature"><span>03</span><div class="feature-art quest-art"><b>MISSION</b><strong>+50 XP</strong><small>achievement unlocked</small></div><h3>Выполняй миссии</h3><p>Следующий шаг всегда конкретный: открыть зону, поговорить с наставником или решить небольшую задачу.</p></article>
+      </div>
+    </section>
+
+    <section class="stats content-width"><div><b id="statsZones">0</b><span>открытых зон</span></div><div><b>100+</b><span>уроков в планах</span></div><div><b>∞</b><span>проектов</span></div><div><b>01</b><span>мир, который растёт</span></div></section>
+  </main>
+
+  <div class="modal-backdrop" id="backdrop"></div>
+
+  <section class="modal" id="zoneModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="zoneTitle">
+    <div class="modal-box">
+      <button class="modal-close" data-close-modal="zoneModal" aria-label="Закрыть">×</button>
+      <div class="modal-head"><div class="modal-icon" id="modalIcon">✦</div><div><div class="eyebrow" id="modalKicker">AI LAB</div><h2 id="zoneTitle">Искусственный интеллект</h2></div></div>
+      <p id="modalDesc"></p>
+      <div class="chips" id="modalChips"></div>
+      <div class="modal-grid"><div><span>ЧТО ВНУТРИ</span><ul id="modalList"></ul></div><div><span>ТЕКУЩАЯ МИССИЯ</span><div class="mission-detail" id="modalMission"></div></div></div>
+      <div class="modal-actions"><button class="secondary-btn" id="programBtn">Смотреть программу</button><button class="primary-btn" id="zoneActionBtn">Начать миссию <span>→</span></button></div>
+    </div>
+  </section>
+
+  <section class="modal" id="lessonModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lessonTitle">
+    <div class="modal-box lesson-box">
+      <button class="modal-close" data-close-modal="lessonModal" aria-label="Закрыть">×</button>
+      <div class="eyebrow">MISSION PROTOCOL</div><h2 id="lessonTitle">Первая миссия</h2>
+      <p id="lessonIntro">Короткое практическое задание.</p>
+      <div class="challenge" id="challengeBox"></div>
+      <div class="challenge-actions"><button class="secondary-btn" data-close-modal="lessonModal">Пока закрыть</button><button class="primary-btn" id="completeMissionBtn">Выполнено <span>+50 XP</span></button></div>
+    </div>
+  </section>
+
+  <section class="modal" id="npcModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="npcTitle">
+    <div class="modal-box npc-box">
+      <button class="modal-close" data-close-modal="npcModal" aria-label="Закрыть">×</button>
+      <div class="modal-head"><div class="modal-icon npc-big" id="npcIcon">B</div><div><div class="eyebrow" id="npcKicker">MENTOR</div><h2 id="npcTitle">BYTE</h2></div></div>
+      <p id="npcText"></p>
+      <div class="npc-quote" id="npcQuote"></div>
+      <button class="primary-btn" id="npcRewardBtn">Забрать совет <span>+20 XP</span></button>
+    </div>
+  </section>
+
+  <section class="modal" id="aboutModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <div class="modal-box about-box">
+      <button class="modal-close" data-close-modal="aboutModal" aria-label="Закрыть">×</button>
+      <div class="eyebrow">WHAT IS INFO.WORLD?</div>
+      <h2 id="aboutTitle">Сайт, который ведёт тебя <strong>внутрь информатики.</strong></h2>
+      <p>Вместо обычного каталога здесь интерактивная карта. Зона — это направление, объект — точка знаний, миссия — практический шаг.</p>
+      <div class="about-points"><div><b>01</b><span>Исследование становится навигацией.</span></div><div><b>02</b><span>Миссии превращают обучение в действие.</span></div><div><b>03</b><span>Прогресс сохраняется локально и развивается вместе с миром.</span></div></div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><span>✦</span><b id="toastText"></b></div>
+  <div class="mobile-panel-bar"><button data-open="leftPanel">Система</button><button data-open="rightPanel">Прогресс</button></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
