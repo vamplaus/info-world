@@ -197,6 +197,44 @@
   function buildNav(){const list=document.getElementById('navList');list.innerHTML='';zones.filter(z=>z.id!=='hub').forEach(z=>{const open=state.discovered.includes(z.id)||state.level>=z.level;const done=state.completed.includes(z.id);const item=document.createElement('button');item.className='nav-item'+(currentZone()?.id===z.id?' active':'');item.innerHTML=`<span>${z.name}</span><span>${done?'DONE':open?'OPEN':'LV '+z.level}</span>`;item.addEventListener('click',()=>focusZone(z.id));list.appendChild(item)})}
   function currentZone(){return zones.slice().sort((a,b)=>{const da=Math.abs(player.x-a.x)+Math.abs(player.y-a.y),db=Math.abs(player.x-b.x)+Math.abs(player.y-b.y);return da-db})[0]}
 
+  function levelFromXp(xp){ return Math.max(1, Math.floor(xp / 100) + 1); }
+  function updateUI(){
+    state.level=levelFromXp(state.xp);
+    const levelValue=document.getElementById('levelValue');
+    const xpValue=document.getElementById('xpValue');
+    const xpBar=document.getElementById('xpBar');
+    const discoverCount=document.getElementById('discoverCount');
+    const discoverBar=document.getElementById('discoverBar');
+    const missionTitle=document.getElementById('missionTitle');
+    const missionText=document.getElementById('missionText');
+    const locationName=document.getElementById('locationName');
+    const locationSub=document.getElementById('locationSub');
+    const zoomLabel=document.getElementById('zoomLabel');
+    if(levelValue) levelValue.textContent=String(state.level);
+    if(xpValue) xpValue.textContent=String(state.xp);
+    if(xpBar){ const pct=((state.xp%100)/100)*100; xpBar.style.width=`${pct}%`; }
+    if(discoverCount) discoverCount.textContent=String(Math.min(state.discovered.filter(id=>id!=='hub').length,5));
+    if(discoverBar) discoverBar.style.width=`${Math.min(100,(state.discovered.filter(id=>id!=='hub').length/5)*100)}%`;
+    const mission=nextMission();
+    if(missionTitle) missionTitle.textContent=mission.title;
+    if(missionText) missionText.textContent=mission.text;
+    const zone=currentZone();
+    if(zone){
+      if(locationName) locationName.textContent=zone.name;
+      if(locationSub) locationSub.textContent=zone.sub;
+    }
+    if(zoomLabel) zoomLabel.textContent=`${Math.round(cam.zoom*100)}%`;
+    buildNav();
+    document.querySelectorAll('.skill').forEach(el=>{
+      const skill=el.dataset.skill;
+      const value=clamp(Number(state.skills?.[skill]||0),0,100);
+      const label=el.querySelector('b');
+      const bar=el.querySelector('.skill-bar span');
+      if(label) label.textContent=`${value}%`;
+      if(bar) bar.style.width=`${value}%`;
+    });
+  }
+
   function nextMission(){
     const order=['python','algo','ai','web','exam'];
     for(const id of order){const z=zones.find(v=>v.id===id);if(!state.discovered.includes(id))return {title:`Открыть ${z.name.replace(' DISTRICT','')}`,text:`Найди район и доберись до его входа.`};if(!state.completed.includes(id))return {title:z.mission,text:z.text}}
@@ -284,8 +322,8 @@
   }
   canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',()=>{cam.drag=false;pointerMoved=false});
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
-  canvas.addEventListener('wheel',e=>{e.preventDefault();cam.follow=false;const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom)showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)},{passive:false});
-  document.getElementById('zoomIn').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*1.1,.55,1.5));document.getElementById('zoomOut').addEventListener('click',()=>cam.zoom=clamp(cam.zoom*.9,.55,1.5));document.getElementById('recenter').addEventListener('click',()=>{cam.follow=true;cam.x=player.x;cam.y=player.y});document.getElementById('brandBtn').addEventListener('click',()=>{cam.follow=true;cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();cam.follow=false;const old=cam.zoom;cam.zoom=clamp(cam.zoom*(e.deltaY>0?.92:1.09),.55,1.5);if(old!==cam.zoom){updateUI();showToast(`Масштаб ${Math.round(cam.zoom*100)}%`)}},{passive:false});
+  document.getElementById('zoomIn').addEventListener('click',()=>{cam.zoom=clamp(cam.zoom*1.1,.55,1.5);updateUI()});document.getElementById('zoomOut').addEventListener('click',()=>{cam.zoom=clamp(cam.zoom*.9,.55,1.5);updateUI()});document.getElementById('recenter').addEventListener('click',()=>{cam.follow=true;cam.x=player.x;cam.y=player.y;updateUI()});document.getElementById('brandBtn').addEventListener('click',()=>{cam.follow=true;cam.x=1200;cam.y=820;player.x=1185;player.y=920;updateUI();showToast('Возврат в INFO HUB')});document.getElementById('focusMission').addEventListener('click',()=>{const m=nextMission();const found=zones.find(z=>m.title.includes(z.name.replace(' DISTRICT','')))||zones.find(z=>!state.discovered.includes(z.id)&&z.id!=='hub');if(found)focusZone(found.id)});
   document.getElementById('helpBtn').addEventListener('click',()=>openHelp());document.getElementById('profileBtn').addEventListener('click',()=>showToast(`Уровень ${state.level} · ${state.xp} XP`));
   document.getElementById('mobileProgressBtn').addEventListener('click',()=>document.getElementById('rightPanel').classList.toggle('open'));document.getElementById('mobileMenuBtn').addEventListener('click',()=>{document.getElementById('leftPanel').style.display=document.getElementById('leftPanel').style.display==='flex'?'none':'flex';document.getElementById('leftPanel').style.position='absolute';document.getElementById('leftPanel').style.zIndex='22';document.getElementById('leftPanel').style.left='8px';document.getElementById('leftPanel').style.top='8px';document.getElementById('leftPanel').style.bottom='8px';document.getElementById('leftPanel').style.width='250px'});
 
@@ -310,5 +348,5 @@
 
   async function bootSequence(){let n=0;const timer=setInterval(()=>{n+=Math.floor(Math.random()*10)+5;if(n>=100){n=100;clearInterval(timer);setTimeout(()=>{boot.style.opacity='0';setTimeout(()=>{boot.remove();app.classList.add('ready');app.removeAttribute('aria-hidden')},380)},260)}bootProgress.style.width=n+'%';bootPercent.textContent=n+'%'},85)}
 
-  resize();updateUI();cam.x=player.x;cam.y=player.y;bootSequence();requestAnimationFrame(loop);window.addEventListener('beforeunload',save);setInterval(save,4000);
+  resize();cam.x=player.x;cam.y=player.y;try{updateUI()}catch(err){console.error('INFO.WORLD UI init error',err)}bootSequence();requestAnimationFrame(loop);window.addEventListener('beforeunload',save);setInterval(save,4000);
 })();
