@@ -2,121 +2,39 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07100e">
-  <title>WORLD — интерактивная карта знаний</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Jura:wght@500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050b12">
+  <title>Математическая школа №1 им. Х.И. Ибрагимова г. Грозного</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app-shell">
-
-  <header class="topbar">
-    <button class="brand" id="homeBtn" aria-label="Вернуть карту в центр">
-      <span class="brand-mark">✦</span>
-      <span>WORLD</span>
-      <small>ИНТЕРАКТИВНАЯ МИР ЗНАНИЙ</small>
-    </button>
-
-    <div class="top-actions">
-      <div class="online"><i></i> МИР АКТИВЕН</div>
-      <button id="helpBtn" class="icon-btn" aria-label="Помощь">?</button>
-      <button id="resetBtn" class="icon-btn" aria-label="Сбросить прогресс">↻</button>
-    </div>
-  </header>
-
-  <main id="viewport" class="viewport" aria-label="Интерактивная карта мира знаний">
-    <div class="map-stage">
-        <img src="world-map.png" class="map-art" alt="Стилизованная карта города знаний в кавказской горной эстетике">
-
-        <div class="map-vignette"></div>
-        <div class="grain"></div>
-
-        <button class="zone-hotspot python" data-zone="python" aria-label="Python District">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-        <button class="zone-hotspot algo" data-zone="algo" aria-label="Algorithm City">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-        <button class="zone-hotspot ai" data-zone="ai" aria-label="AI Lab">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-        <button class="zone-hotspot web" data-zone="web" aria-label="Web Lab">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-        <button class="zone-hotspot exam" data-zone="exam" aria-label="Exam Arena">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-        <button class="zone-hotspot hub" data-zone="hub" aria-label="Info Core">
-          <span class="pulse"></span><span class="hotspot-dot"></span>
-        </button>
-
+  <main class="site" aria-label="Математическая школа №1 имени Х. И. Ибрагимова города Грозного">
+    <div class="map-frame">
+      <img id="schoolMap" class="school-map" src="school-map.png"
+           alt="Карта образовательного пространства школы"
+           draggable="false" fetchpriority="high">
+      <div class="map-shade" aria-hidden="true"></div>
+      <div class="map-grain" aria-hidden="true"></div>
     </div>
 
-    <section class="map-title">
-      <span class="eyebrow">МИР ЗНАНИЙ</span>
-      <h1>WORLD</h1>
-      <p>ИССЛЕДУЙ. УЧИСЬ. СОЗДАВАЙ.</p>
-      <div class="ornament"><i></i><b></b><i></i></div>
-      <small>ВИЗУАЛЬНАЯ КОНЦЕПЦИЯ ВДОХНОВЛЕНА ГОРНОЙ АРХИТЕКТУРОЙ<br>И КУЛЬТУРНЫМ НАСЛЕДИЕМ КАВКАЗА</small>
+    <section class="welcome" id="welcome" aria-labelledby="welcomeTitle">
+      <div class="welcome-card">
+        <div class="welcome-line" aria-hidden="true"></div>
+        <p class="welcome-eyebrow">ДОБРО ПОЖАЛОВАТЬ</p>
+        <h1 id="welcomeTitle">Математическая школа №1</h1>
+        <p class="school-name">им. Х.И. Ибрагимова<br>г. Грозного</p>
+        <div class="welcome-divider" aria-hidden="true"><span></span></div>
+        <button class="enter-button" id="enterButton" type="button">
+          <span>Войти в школу</span><i aria-hidden="true">→</i>
+        </button>
+        <p class="welcome-hint">Нажмите, чтобы открыть карту школы</p>
+      </div>
     </section>
 
-    <aside class="progress-panel">
-      <div class="progress-head">
-        <span>ИССЛЕДОВАТЕЛЬ</span>
-        <strong>УРОВЕНЬ <b id="levelNum">1</b></strong>
-      </div>
-      <div class="xp-line"><i id="xpBar"></i></div>
-      <div class="xp-readout"><span><b id="xpNum">0</b> XP</span><span id="discoverCount">0 / 5</span></div>
-      <div class="objective">
-        <span class="objective-num">01</span>
-        <div><b id="missionTitle">НАЧАТЬ ИССЛЕДОВАНИЕ</b><p id="missionText">Выбери локацию мышью.</p></div>
-      </div>
-    </aside> 
-    <aside class="control-card">
-      <span>УПРАВЛЕНИЕ</span>
-      <p><kbd>CLICK</kbd><small>открыть район</small></p>
-      <p><kbd>INFO</kbd><small>изучить описание и маршрут</small></p>
-    </aside>
-
-    <div id="toast" class="toast" role="status"></div>
-  </main>
-
-  <footer class="legend">
-    <button class="legend-item" data-zone="hub"><span class="legend-icon">✦</span><div><b>ЕДИНСТВО</b><small>Все направления соединены в одном мире.</small></div></button>
-    <button class="legend-item" data-zone="python"><span class="legend-icon">⌘</span><div><b>ЛОГИКА</b><small>Код, структура и последовательность.</small></div></button>
-    <button class="legend-item" data-zone="algo"><span class="legend-icon">◈</span><div><b>ЗНАНИЯ</b><small>Каждое решение меняет путь.</small></div></button>
-    <button class="legend-item" data-zone="exam"><span class="legend-icon">✧</span><div><b>БУДУЩЕЕ</b><small>Знания превращаются в результат.</small></div></button>
-  </footer>
-</div>
-
-<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modal-card">
-    <button id="closeModal" class="modal-close" aria-label="Закрыть">×</button>
-    <div class="modal-symbol" id="modalSymbol">✦</div>
-    <span id="modalEyebrow">CENTRAL DISTRICT</span>
-    <h2 id="modalTitle">INFO CORE</h2>
-    <p id="modalText"></p>
-    <div id="modalLesson" class="lesson"></div>
-    <button id="completeBtn" class="primary">Исследовать локацию</button>
-  </div>
-</div>
-
-<div id="helpModal" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modal-card help-card">
-    <button id="closeHelp" class="modal-close" aria-label="Закрыть">×</button>
-    <span>КАК ИССЛЕДОВАТЬ КАРТУ</span>
-    <h2>Карта работает мышью</h2>
-    <p>Выбирай районы непосредственно на карте. Нажатие открывает описание, учебный маршрут и возможность отметить район исследованным.</p>
-    <div class="help-grid">
-      <div><kbd>CLICK</kbd><small>открыть район</small></div>
-      <div><kbd>HOVER</kbd><small>подсветить точку</small></div>
+    <div class="loading" id="loading" aria-live="polite">
+      <span class="loading-mark"></span><span>Загрузка школы</span>
     </div>
-  </div>
-</div>
-
-<script src="script.js"></script>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>
