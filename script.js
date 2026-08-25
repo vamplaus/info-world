@@ -36,14 +36,51 @@ function addZone(z){
  const aura=el('circle',{class:'zone-aura',cx:z.cx,cy:z.cy,r:z.r*.8});
  const sig=el('circle',{class:'signal',cx:z.cx,cy:z.cy,r:z.r*.64});
  const hit=shape(z,{class:'zone-shape'});g.append(aura,sig,hit);hotspots.append(g);
- const enter=()=>{tooltip.hidden=false;tooltip.textContent=z.name;const p=screenPoint(z.cx,z.cy);tooltip.style.left=Math.min(p.x+14,window.innerWidth-180)+'px';tooltip.style.top=Math.max(8,p.y-38)+'px'};
+ const enter=()=>{tooltip.hidden=false;tooltip.textContent=z.name;requestAnimationFrame(()=>placeTooltip(z))};
  const leave=()=>{tooltip.hidden=true};
  g.addEventListener('pointerenter',enter);g.addEventListener('pointerleave',leave);g.addEventListener('click',()=>openInfo(z,g));
  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInfo(z,g)}});
 }
-function screenPoint(x,y){const r=svg.getBoundingClientRect();return{x:r.left+x/W*r.width,y:r.top+y/H*r.height}}
-function openInfo(z,g){document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'));g.classList.add('active');icon.textContent=z.icon;kicker.textContent=z.k;title.textContent=z.name;text.textContent=z.info;card.style.setProperty('--zone-color',z.color);const p=screenPoint(...z.card);card.hidden=false;requestAnimationFrame(()=>{const cw=card.offsetWidth,ch=card.offsetHeight;card.style.left=Math.max(12,Math.min(p.x,window.innerWidth-cw-12))+'px';card.style.top=Math.max(12,Math.min(p.y,window.innerHeight-ch-12))+'px'});createClickPulse(z)}
-function closeInfo(){card.hidden=true;document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'))}
+const frame=$('mapFrame');
+let activeZone=null;
+
+function framePoint(x,y){
+ const r=frame.getBoundingClientRect();
+ return {x:x/W*r.width,y:y/H*r.height};
+}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function placeTooltip(z){
+ const p=framePoint(z.cx,z.cy);
+ const pad=10, w=tooltip.offsetWidth||180, h=tooltip.offsetHeight||30;
+ tooltip.style.left=clamp(p.x+14,pad,frame.clientWidth-w-pad)+'px';
+ tooltip.style.top=clamp(p.y-38,pad,frame.clientHeight-h-pad)+'px';
+}
+function placeCard(z){
+ if(card.hidden)return;
+ const p=framePoint(...z.card);
+ const pad=12, cw=card.offsetWidth, ch=card.offsetHeight;
+ card.style.left=clamp(p.x,pad,frame.clientWidth-cw-pad)+'px';
+ card.style.top=clamp(p.y,pad,frame.clientHeight-ch-pad)+'px';
+}
+function openInfo(z,g){
+ document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'));
+ g.classList.add('active');
+ activeZone=z;
+ icon.textContent=z.icon;
+ kicker.textContent=z.k;
+ title.textContent=z.name;
+ text.textContent=z.info;
+ card.style.setProperty('--zone-color',z.color);
+ tooltip.hidden=true;
+ card.hidden=false;
+ requestAnimationFrame(()=>placeCard(z));
+ createClickPulse(z);
+}
+function closeInfo(){
+ card.hidden=true;
+ activeZone=null;
+ document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'));
+}
 
 function createLife(){
  zones.forEach((z,zi)=>{
@@ -52,8 +89,7 @@ function createLife(){
    // random-looking window lights, clipped conceptually to the building's rough bounds via radius distribution
    const count=z.id==='school'?36:18;
    for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2, rr=Math.sqrt(Math.random())*z.r*.58;const x=z.cx+Math.cos(a)*rr*1.15,y=z.cy+Math.sin(a)*rr*.55;const w=3+Math.random()*4,h=3+Math.random()*5;const r=el('rect',{class:'window-dot',x:x-w/2,y:y-h/2,width:w,height:h,rx:1,style:`--c:${z.color};--dur:${1.7+Math.random()*5}s;--delay:${-Math.random()*7}s`});windowFx.append(r)}
-   // a specific pulsing source per building
-   const s=el('circle',{class:'zone-specific',cx:z.cx,cy:z.cy,r:5+zi%4*2,style:`--c:${z.color};--dur:${2.2+zi%5*.45}s;--delay:${-zi*.25}s`});ambientFx.append(s);
+   // No central marker: the building itself is the interactive object.
  });
  // road energy paths: approximate main routes between districts
  const paths=['M815 445 L815 560 L1060 625','M815 445 L565 655 L500 865','M815 445 L830 700 L830 880','M815 445 L280 560 L160 805','M815 445 L1050 130','M815 445 L1335 480','M815 445 L610 145'];
@@ -71,6 +107,6 @@ async function boot(){
 $('mapFrame').addEventListener('wheel',e=>e.preventDefault(),{passive:false});
 $('mapFrame').addEventListener('dragstart',e=>e.preventDefault());
 close.addEventListener('click',closeInfo);document.addEventListener('pointerdown',e=>{if(!card.hidden&&!card.contains(e.target)&&!e.target.closest('.zone'))closeInfo()});
-window.addEventListener('resize',()=>{if(!card.hidden)closeInfo()});
+window.addEventListener('resize',()=>{if(!card.hidden&&activeZone)requestAnimationFrame(()=>placeCard(activeZone));document.querySelectorAll('.zone').forEach(()=>{});});
 zones.forEach(addZone);createLife();makeDust();boot();
 })();
