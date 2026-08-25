@@ -1,69 +1,67 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#020710">
-<title>Математическая школа №1 им. Х. И. Ибрагимова</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050a0f">
+  <meta name="description" content="Живая интерактивная карта Математической школы №1 имени Х. И. Ибрагимова города Грозного.">
+  <title>Математическая школа №1 им. Х. И. Ибрагимова</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="app" id="app">
-  <section class="loader screen" id="loader" aria-live="polite">
+<main id="app">
+  <section id="loader" class="screen loader" aria-live="polite">
     <div class="loader-stars"></div>
-    <div class="loader-orbit orbit-a"></div><div class="loader-orbit orbit-b"></div>
-    <div class="loader-core">МШ</div>
-    <div class="loader-copy">
-      <p>ИНТЕРАКТИВНОЕ ПРОСТРАНСТВО</p>
-      <h1>МАТЕМАТИЧЕСКАЯ ШКОЛА №1</h1>
-      <span>им. Х. И. Ибрагимова · г. Грозный</span>
-      <div class="progress"><i id="loaderBar"></i></div>
-      <div class="loader-meta"><b id="loaderStatus">ПОДГОТОВКА ПРОСТРАНСТВА</b><span id="loaderPercent">0%</span></div>
-    </div>
+    <div class="loader-core"><div class="loader-ring r1"></div><div class="loader-ring r2"></div><div class="loader-mark">МШ</div></div>
+    <p class="loader-kicker">ИНТЕРАКТИВНОЕ ПРОСТРАНСТВО</p>
+    <h1>МАТЕМАТИЧЕСКАЯ ШКОЛА №1</h1>
+    <p class="loader-sub">им. Х. И. Ибрагимова · г. Грозный</p>
+    <div class="progress"><i id="progressBar"></i></div>
+    <div class="progress-meta"><span id="progressValue">0%</span><span id="progressStatus">ПОДГОТОВКА ПРОСТРАНСТВА</span></div>
   </section>
 
-  <section class="welcome screen" id="welcome" hidden>
-    <div class="welcome-rays"></div>
-    <article class="welcome-card">
-      <div class="crest">✦</div>
-      <p class="kicker">ДОБРО ПОЖАЛОВАТЬ</p>
+  <section id="welcome" class="screen welcome" hidden>
+    <div class="welcome-aura"></div>
+    <div class="welcome-card">
+      <div class="welcome-symbol">✦</div>
+      <p>ДОБРО ПОЖАЛОВАТЬ</p>
       <h1>Математическая школа №1</h1>
       <h2>им. Х. И. Ибрагимова<br>г. Грозного</h2>
-      <div class="rule"></div>
-      <p>Перед вами не статичная схема, а живое образовательное пространство. Здания светятся, реагируют на курсор и откликаются на выбор.</p>
-      <button id="enterButton" type="button">ВОЙТИ В ШКОЛЬНЫЙ ГОРОД <b>→</b></button>
-      <small id="autoEnter">Вход будет выполнен автоматически</small>
-    </article>
-  </section>
-
-  <section class="world screen" id="world" hidden>
-    <div class="world-stars" id="worldStars"></div>
-    <div class="map-frame" id="mapFrame" aria-label="Живая интерактивная карта школы">
-      <img class="school-map" id="schoolMap" src="school-map.png" alt="Карта образовательного пространства" draggable="false">
-      <div class="city-breath"></div>
-      <div class="map-light-sweep"></div>
-      <div class="road-network" aria-hidden="true"><svg viewBox="0 0 1536 1024" preserveAspectRatio="none">
-        <path class="road road-1" d="M165 375 C300 420 360 470 480 500 C610 530 650 560 770 520 C900 480 950 430 1080 470 C1210 510 1270 610 1390 670"/>
-        <path class="road road-2" d="M180 770 C330 690 410 630 540 610 C680 590 760 690 870 730 C1010 780 1120 740 1290 800"/>
-        <path class="road road-3" d="M770 260 C760 390 800 480 770 610 C740 720 790 830 760 920"/>
-      </svg></div>
-      <div class="fireflies" id="fireflies"></div>
-      <div class="map-haze haze-1"></div><div class="map-haze haze-2"></div>
-      <div class="zones" id="zones"></div>
-      <div class="map-label"><span>ЖИВАЯ КАРТА</span><b>НАВЕДИТЕ КУРСОР НА ЗДАНИЕ</b></div>
-      <div class="hint" id="hint">Каждое здание — интерактивная зона</div>
+      <div class="welcome-line"></div>
+      <span>Открываем живое пространство школы…</span>
     </div>
   </section>
 
-  <dialog id="zoneDialog" class="zone-dialog">
-    <button id="dialogClose" class="dialog-close" aria-label="Закрыть">×</button>
-    <div class="dialog-icon" id="dialogIcon">✦</div>
-    <p id="dialogKicker" class="dialog-kicker"></p>
-    <h2 id="dialogTitle"></h2>
-    <p id="dialogText"></p>
-    <div class="dialog-rule"></div>
-    <button id="dialogAction" class="dialog-action">ВЕРНУТЬСЯ К КАРТЕ</button>
-  </dialog>
+  <section id="world" class="screen world" hidden aria-label="Живая интерактивная карта школы">
+    <div id="mapFrame" class="map-frame">
+      <img id="mapImage" src="school-map.png" alt="Карта образовательного пространства Математической школы №1" draggable="false">
+      <div class="map-shade"></div>
+      <div class="scanline"></div>
+      <div class="dust" id="dust"></div>
+      <svg id="fxSvg" class="fx-svg" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <filter id="blur10"><feGaussianBlur stdDeviation="10"/></filter>
+          <filter id="blur4"><feGaussianBlur stdDeviation="4"/></filter>
+          <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glowStrong"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <linearGradient id="roadPulse" x1="0" x2="1"><stop offset="0" stop-color="#ffd070" stop-opacity="0"/><stop offset=".5" stop-color="#ffe7a7" stop-opacity=".95"/><stop offset="1" stop-color="#ffd070" stop-opacity="0"/></linearGradient>
+        </defs>
+        <g id="ambientFx"></g>
+        <g id="windowFx"></g>
+        <g id="pulseFx"></g>
+        <g id="hotspots"></g>
+      </svg>
+      <div id="tooltip" class="tooltip" hidden></div>
+      <aside id="infoCard" class="info-card" hidden>
+        <button id="infoClose" class="info-close" aria-label="Закрыть">×</button>
+        <div id="infoIcon" class="info-icon">✦</div>
+        <div id="infoKicker" class="info-kicker"></div>
+        <h2 id="infoTitle"></h2>
+        <p id="infoText"></p>
+      </aside>
+      <div class="map-caption"><span>ЖИВАЯ КАРТА</span><b>НАВЕДИТЕ КУРСОР НА ЗДАНИЕ</b></div>
+    </div>
+  </section>
 </main>
 <script src="script.js"></script>
 </body>
