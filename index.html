@@ -33,13 +33,14 @@
       <p class="school-name">им. Х. И. Ибрагимова<br>г. Грозного</p>
       <div class="welcome-rule" aria-hidden="true"><span></span></div>
       <p class="welcome-copy">Исследуйте живую карту школьного пространства. Выберите здание или направление, чтобы узнать больше.</p>
-      <button class="enter-button" id="enterButton" type="button"><span>ВОЙТИ В ШКОЛЬНЫЙ ГОРОД</span><b>→</b></button>
+      <button class="enter-button" id="enterButton" type="button"><span>ВОЙТИ В ШКОЛЬНЫЙ ГОРОД</span><b>→</b></button><p class="auto-enter" id="autoEnter">Вход откроется автоматически</p>
     </article>
   </section>
 
   <section class="screen world" id="world" hidden aria-label="Живая интерактивная карта школы">
     <div class="map-stage" id="mapStage">
       <img class="school-map" id="schoolMap" src="school-map.png" alt="Карта образовательного пространства Математической школы №1" draggable="false">
+      <div class="activity-layer" id="activityLayer" aria-hidden="true"></div>
       <div class="map-vignette" aria-hidden="true"></div>
       <div class="ambient-grid" aria-hidden="true"></div>
       <div class="scene-glow glow-school" aria-hidden="true"></div>
