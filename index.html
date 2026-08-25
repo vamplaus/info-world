@@ -4,45 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#04090e">
-<meta name="description" content="Интерактивная живая карта Математической школы №1 имени Х. И. Ибрагимова.">
 <title>Математическая школа №1 — живая карта</title>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <div id="loader" aria-live="polite">
-  <div class="loader-ring"></div><div class="loader-core">МШ</div>
-  <strong>МАТЕМАТИЧЕСКАЯ ШКОЛА №1</strong><span id="loadText">ЗАПУСК ПРОСТРАНСТВА</span>
+  <div class="loader-orbit"></div><div class="loader-mark">МШ</div>
+  <b>МАТЕМАТИЧЕСКАЯ ШКОЛА №1</b><span id="loaderText">ПОДГОТОВКА ПРОСТРАНСТВА</span>
 </div>
 
-<main id="world" hidden>
-  <div id="mapViewport">
-    <section id="mapCanvas" aria-label="Интерактивная карта школы">
-      <img id="mapImage" src="school-map.png" alt="Карта образовательного пространства школы" draggable="false">
-      <svg id="mapSvg" viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-label="16 интерактивных зданий и объектов">
-        <defs>
-          <filter id="glowSoft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="glowStrong" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <g id="zoneDefs"></g>
-        </defs>
-        <g id="ambient"></g>
-        <g id="life"></g>
-        <g id="zones"></g>
-      </svg>
-      <div class="map-caption">ЖИВАЯ КАРТА · НАВЕДИТЕ НА ЗДАНИЕ</div>
-    </section>
+<main id="app" hidden>
+  <div id="viewport" aria-label="Интерактивная карта школы">
+    <div id="camera">
+      <div id="scene">
+        <img id="map" src="school-map.png" draggable="false" alt="Карта школы">
+        <svg id="fx" viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <svg id="hotspots" viewBox="0 0 1536 1024" preserveAspectRatio="none" aria-label="Интерактивные здания"></svg>
+      </div>
+    </div>
+    <div id="hoverLabel" hidden></div>
   </div>
 
-  <aside id="infoCard" hidden aria-live="polite">
-    <button id="closeInfo" type="button" aria-label="Закрыть">×</button>
-    <div class="info-top"><span id="infoIcon">✦</span><small id="infoKicker"></small></div>
-    <h1 id="infoTitle"></h1>
-    <p id="infoText"></p>
-    <div class="info-line"></div>
-    <span class="info-hint">Выберите другое здание или нажмите Esc</span>
+  <aside id="card" hidden>
+    <button id="close" aria-label="Закрыть">×</button>
+    <div id="cardIcon"></div><small id="cardKind"></small>
+    <h1 id="cardTitle"></h1><p id="cardText"></p>
+    <div class="line"></div><span class="hint">Нажмите на другое здание или Esc</span>
   </aside>
 
-  <div id="tooltip" role="status" hidden></div>
+  <div class="controls">
+    <button id="zoomIn" title="Увеличить">+</button>
+    <button id="zoomOut" title="Уменьшить">−</button>
+    <button id="reset" title="Показать всю карту">⌂</button>
+  </div>
+  <div class="status"><span class="live-dot"></span> ЖИВОЙ ГОРОД</div>
 </main>
-<script src="script.js?v=6"></script>
-</body>
-</html>
+<script src="script.js?v=8"></script>
+</body></html>

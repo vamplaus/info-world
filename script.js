@@ -1,12 +1,9 @@
 (()=>{'use strict';
-const W=1536,H=1024,NS='http://www.w3.org/2000/svg';
-const $=id=>document.getElementById(id);
-const map=$('mapImage'),canvas=$('mapCanvas'),zonesRoot=$('zones'),defsRoot=$('zoneDefs'),lifeRoot=$('life'),ambientRoot=$('ambient'),tooltip=$('tooltip'),card=$('infoCard');
-const info={icon:$('infoIcon'),kicker:$('infoKicker'),title:$('infoTitle'),text:$('infoText')};
-let active=null, built=false;
+const NS='http://www.w3.org/2000/svg',W=1536,H=1024;
+const $=id=>document.getElementById(id), viewport=$('viewport'),scene=$('scene'),hotspots=$('hotspots'),fx=$('fx'),label=$('hoverLabel'),card=$('card');
+const info={icon:$('cardIcon'),kind:$('cardKind'),title:$('cardTitle'),text:$('cardText')};
+let scale=1,tx=0,ty=0,drag=null,active=null;
 
-/* Финальные интерактивные контуры 16 объектов.
-   Контуры намеренно повторяют компактный силуэт каждого объекта и не включают дороги/соседние здания. */
 const Z=[
 ['club','Клуб математиков','КРУЖОК','∑','#61b9ff','276,46 350,28 409,50 451,97 455,152 416,190 337,188 282,157 258,104','Математические кружки, олимпиадная подготовка и нестандартные задачи.'],
 ['magic','Волшебство естества','НАУЧНОЕ НАПРАВЛЕНИЕ','✦','#63d5bc','535,65 609,39 675,61 707,104 703,174 670,212 594,201 534,166 506,113','Эксперименты, естественные науки и исследовательские проекты.'],
@@ -24,74 +21,74 @@ const Z=[
 ['dance','Танцы народов Кавказа','КУЛЬТУРА','♢','#ef63c8','398,774 478,740 565,747 641,793 653,855 605,919 503,946 414,911 360,854','Культурное наследие и традиции народного танца.'],
 ['basketball','Баскетбол','СПОРТ','◌','#f39a34','706,789 785,759 875,766 955,809 969,871 923,934 822,958 730,925 678,856','Командная игра, тренировки и развитие игровых навыков.'],
 ['volleyball','Волейбол','СПОРТ','◍','#58b8ff','1049,779 1131,745 1222,757 1308,804 1322,861 1272,930 1176,953 1080,920 1026,852','Командная спортивная секция и регулярные тренировки.']
-].map(([id,name,k,icon,color,points,text])=>({id,name,k,icon,color,points,text}));
+].map(([id,name,kind,icon,color,points,text])=>({id,name,kind,icon,color,points,text}));
 
-function svg(tag,a={}){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e}
-function centroid(points){const a=points.trim().split(/\s+/).map(v=>v.split(',').map(Number));return a.reduce((s,p)=>[s[0]+p[0]/a.length,s[1]+p[1]/a.length],[0,0])}
-function polygon(points,cls){return svg('polygon',{points,class:cls})}
-
-function addZone(z){
-  const clipId='clip-'+z.id;
-  const cp=svg('clipPath',{id:clipId,clipPathUnits:'userSpaceOnUse'});cp.append(polygon(z.points,''));defsRoot.append(cp);
-  const g=svg('g',{class:'zone',tabindex:'0',role:'button','aria-label':z.name,style:`--c:${z.color};--clip:url(#${clipId})`});
-  g.dataset.id=z.id;
-  const cut=svg('image',{href:'school-map.png',x:'0',y:'0',width:W,height:H,preserveAspectRatio:'none',class:'zone-cut','clip-path':`url(#${clipId})`});
-  g.append(polygon(z.points,'zone-shadow'),cut,polygon(z.points,'zone-hit'),polygon(z.points,'zone-outline'));
-  g.addEventListener('pointerenter',e=>showTip(z,e));
-  g.addEventListener('pointermove',moveTip);
-  g.addEventListener('pointerleave',hideTip);
-  g.addEventListener('click',()=>open(z,g));
-  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(z,g)}});
-  zonesRoot.append(g);
+function S(tag,a={}){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,v);return e}
+function pts(s){return s.trim().split(/\s+/).map(x=>x.split(',').map(Number))}
+function center(z){const p=pts(z.points);return p.reduce((a,b)=>[a[0]+b[0]/p.length,a[1]+b[1]/p.length],[0,0])}
+function apply(){scene.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`}
+function fit(){
+ const r=viewport.getBoundingClientRect(), s=Math.min(r.width/W,r.height/H);
+ scale=s;tx=(r.width-W*s)/2;ty=(r.height-H*s)/2;apply()
 }
-function showTip(z,e){tooltip.textContent=z.name;tooltip.style.setProperty('--tc',z.color);tooltip.hidden=false;moveTip(e)}
-function moveTip(e){if(tooltip.hidden)return;const pad=10,w=tooltip.offsetWidth||180,h=tooltip.offsetHeight||35;let x=e.clientX+15,y=e.clientY;if(x+w>innerWidth-pad)x=e.clientX-w-15;if(y-h/2<pad)y=pad+h/2;if(y+h/2>innerHeight-pad)y=innerHeight-pad-h/2;tooltip.style.left=x+'px';tooltip.style.top=y+'px'}
-function hideTip(){tooltip.hidden=true}
-
+function screenPoint(x,y){const r=viewport.getBoundingClientRect();return {x:r.left+tx+x*scale,y:r.top+ty+y*scale}}
+function clampPan(){
+ const r=viewport.getBoundingClientRect(), mw=W*scale,mh=H*scale;
+ if(mw<=r.width)tx=(r.width-mw)/2;else tx=Math.max(r.width-mw,Math.min(0,tx));
+ if(mh<=r.height)ty=(r.height-mh)/2;else ty=Math.max(r.height-mh,Math.min(0,ty));
+}
+function zoomAt(f,cx=innerWidth/2,cy=innerHeight/2){
+ const r=viewport.getBoundingClientRect(), old=scale;scale=Math.max(.25,Math.min(4,scale*f));
+ const lx=(cx-r.left-tx)/old,ly=(cy-r.top-ty)/old;
+ tx=cx-r.left-lx*scale;ty=cy-r.top-ly*scale;clampPan();apply();if(active)placeCard(active)
+}
+function showLabel(z){
+ const [x,y]=center(z),p=screenPoint(x,y);label.textContent=z.name;label.style.setProperty('--accent',z.color);label.hidden=false;
+ const w=label.offsetWidth||160,h=label.offsetHeight||34;label.style.left=Math.max(8,Math.min(innerWidth-w-8,p.x-w/2))+'px';label.style.top=Math.max(8,p.y-h-14)+'px'
+}
+function hideLabel(){label.hidden=true}
 function placeCard(z){
-  const pad=12;
-  if(innerWidth<=900){card.style.top='';card.style.left='';card.style.right='';card.style.bottom='12px';return}
-  const [cx,cy]=centroid(z.points),r=canvas.getBoundingClientRect();
-  const px=r.left+(cx/W)*r.width,py=r.top+(cy/H)*r.height,cw=card.offsetWidth,ch=card.offsetHeight;
-  const rightSide=px<innerWidth*.5;
-  let left=rightSide?Math.max(r.right+14,px+r.width*.16):Math.min(r.left-cw-14,px-r.width*.16-cw);
-  if(left<pad||left+cw>innerWidth-pad)left=px<innerWidth*.5?Math.min(innerWidth-cw-pad,px+r.width*.10):Math.max(pad,px-r.width*.10-cw);
-  let top=py-ch*.5;
-  top=Math.max(pad,Math.min(top,innerHeight-ch-pad));
-  left=Math.max(pad,Math.min(left,innerWidth-cw-pad));
-  card.style.right='auto';card.style.bottom='auto';card.style.left=left+'px';card.style.top=top+'px';
+ if(innerWidth<=760)return;
+ const [x,y]=center(z),p=screenPoint(x,y),cw=card.offsetWidth,ch=card.offsetHeight,pad=12;
+ let left=p.x+22,top=p.y-ch/2;
+ if(left+cw>innerWidth-pad)left=p.x-cw-22;
+ if(left<pad)left=Math.max(pad,Math.min(innerWidth-cw-pad,p.x-cw/2));
+ top=Math.max(pad,Math.min(innerHeight-ch-pad,top));
+ card.style.left=left+'px';card.style.top=top+'px';card.style.bottom='auto'
 }
-function open(z,g){
-  document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'));
-  g.classList.add('active');active={z,g};
-  info.icon.textContent=z.icon;info.kicker.textContent=z.k;info.title.textContent=z.name;info.text.textContent=z.text;
-  card.style.setProperty('--accent',z.color);card.hidden=false;
-  requestAnimationFrame(()=>{placeCard(z);card.classList.add('show')});hideTip();
+function open(z){
+ active=z;info.icon.textContent=z.icon;info.kind.textContent=z.kind;info.title.textContent=z.name;info.text.textContent=z.text;
+ card.style.setProperty('--accent',z.color);card.hidden=false;requestAnimationFrame(()=>{placeCard(z);card.classList.add('show')});hideLabel()
 }
-function close(){card.classList.remove('show');document.querySelectorAll('.zone.active').forEach(x=>x.classList.remove('active'));active=null;setTimeout(()=>{if(!active)card.hidden=true},210)}
-
-function path(d,i){ambientRoot.append(svg('path',{d,class:'route',style:`--d:${7+i*.9}s;--delay:${-i*.8}s`}))}
-function light(x,y,c,d,delay){lifeRoot.append(svg('circle',{cx:x,cy:y,r:2.4,class:'window-light',style:`--c:${c};--d:${d}s;--delay:${delay}s`}))}
-function ring(x,y,c,delay){lifeRoot.append(svg('circle',{cx:x,cy:y,r:18,class:'pulse',style:`--c:${c};--delay:${delay}s`}))}
-function buildLife(){
-  ['M764 438 L806 551 L1022 622','M764 438 L565 628 L497 820','M807 551 L835 749 L827 890','M807 551 L1105 570','M764 438 L1048 179','M764 438 L1302 473','M565 628 L306 579'].forEach(path);
-  Z.forEach((z,i)=>{const pts=z.points.trim().split(/\s+/).map(s=>s.split(',').map(Number));const [cx,cy]=centroid(z.points);const a=pts[0],b=pts[Math.floor(pts.length/2)],c=pts[Math.floor(pts.length*.72)];
-    light((cx+a[0])/2,(cy+a[1])/2,z.color,3.2+(i%4)*.55,-i*.27);
-    light((cx+b[0])/2,(cy+b[1])/2,z.color,4.0+(i%5)*.38,-i*.21-.5);
-    light((cx+c[0])/2,(cy+c[1])/2,z.color,4.7+(i%3)*.6,-i*.18-1);
-    ring(cx,cy,z.color,-i*.3);
-  });
+function close(){active=null;card.classList.remove('show');setTimeout(()=>{if(!active)card.hidden=true},200)}
+function build(){
+ const defs=S('defs');defs.innerHTML='<filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';fx.append(defs);
+ const routes=['M764 438 L806 551 L1022 622','M764 438 L565 628 L497 820','M807 551 L835 749 L827 890','M807 551 L1105 570','M764 438 L1048 179','M764 438 L1302 473','M565 628 L306 579'];
+ routes.forEach((d,i)=>fx.append(S('path',{d,class:'route',style:`--d:${7+i*.8}s;--delay:${-i*.7}s`})));
+ Z.forEach((z,i)=>{
+   const p=pts(z.points),[cx,cy]=center(z);
+   // Invisible hit area only: no stroke, no fill, no visual boundary.
+   const h=S('polygon',{points:z.points,class:'hotspot',tabindex:'0',role:'button','aria-label':z.name});
+   h.addEventListener('pointerenter',()=>showLabel(z));h.addEventListener('pointerleave',hideLabel);h.addEventListener('click',()=>open(z));
+   h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(z)}});hotspots.append(h);
+   // Controlled local life inside the object, not random global particles.
+   [[.30,.35],[.53,.44],[.68,.62]].forEach((q,j)=>{
+     const a=p[j%p.length],b=p[(j+1)%p.length];
+     const x=a[0]+(b[0]-a[0])*q[0],y=a[1]+(b[1]-a[1])*q[1];
+     fx.append(S('circle',{cx:x,cy:y,r:2.2,class:'window',style:`--c:${z.color};--d:${3.3+j*.7+(i%3)*.2};--delay:${-(i*.19+j*.73)}`}));
+   });
+   fx.append(S('circle',{cx,cy,r:16,class:'beacon',style:`--c:${z.color};--delay:${-i*.31}s`}));
+   fx.append(S('polygon',{points:z.points,class:'shimmer',style:`--c:${z.color};--delay:${-i*.23}s`}));
+ });
 }
-function build(){if(built)return;built=true;Z.forEach(addZone);buildLife();window.__MAP_READY__=true}
-function boot(){
-  const loader=$('loader'),world=$('world'),loadText=$('loadText');
-  const steps=['ЗАГРУЗКА КАРТЫ','РАЗМЕТКА 16 ОБЪЕКТОВ','ЗАПУСК ОСВЕЩЕНИЯ','ПРОСТРАНСТВО ГОТОВО'];let i=0;
-  const timer=setInterval(()=>{loadText.textContent=steps[i++];if(i===steps.length){clearInterval(timer);setTimeout(()=>{loader.classList.add('is-out');world.hidden=false;setTimeout(()=>loader.remove(),600)},220)}},300);
-}
-$('closeInfo').addEventListener('click',close);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-document.addEventListener('pointerdown',e=>{if(active&&!card.contains(e.target)&&!e.target.closest('.zone'))close()});
-window.addEventListener('resize',()=>{if(active)placeCard(active.z)});
-map.addEventListener('load',()=>{build();boot()},{once:true});
-if(map.complete&&map.naturalWidth){build();boot()}
+viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.14:1/1.14,e.clientX,e.clientY)},{passive:false});
+viewport.addEventListener('pointerdown',e=>{if(e.target.closest('.hotspot'))return;drag={x:e.clientX,y:e.clientY,tx,ty,id:e.pointerId};viewport.setPointerCapture(e.pointerId);viewport.classList.add('dragging')});
+viewport.addEventListener('pointermove',e=>{if(!drag)return;tx=drag.tx+e.clientX-drag.x;ty=drag.ty+e.clientY-drag.y;clampPan();apply();if(active)placeCard(active)});
+viewport.addEventListener('pointerup',()=>{drag=null;viewport.classList.remove('dragging')});
+viewport.addEventListener('dblclick',e=>zoomAt(1.45,e.clientX,e.clientY));
+$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(.8);$('reset').onclick=fit;$('close').onclick=close;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});window.addEventListener('resize',()=>{fit();if(active)placeCard(active)});
+$('map').addEventListener('load',()=>{build();fit();const L=$('loader'),T=$('loaderText'),steps=['ЗАГРУЗКА КАРТЫ','АКТИВАЦИЯ 16 ОБЪЕКТОВ','ЗАПУСК ОСВЕЩЕНИЯ','ГОРОД ГОТОВ'];let i=0;const t=setInterval(()=>{T.textContent=steps[i++];if(i===steps.length){clearInterval(t);setTimeout(()=>{$('app').hidden=false;L.classList.add('out');setTimeout(()=>L.remove(),700)},220)}},330)},{once:true});
+if($('map').complete&&$('map').naturalWidth)$('map').dispatchEvent(new Event('load'));
+window.__MAP_READY__=true;
 })();
