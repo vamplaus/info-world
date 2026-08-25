@@ -341,7 +341,7 @@
     showModal();
   }
 
-  document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='e'){e.preventDefault();interact()}else if(k==='escape'){closeModal()}else if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){keys.add(k)}});document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+  document.addEventListener('keydown',e=>{const code=e.code;if(code==='KeyE'){e.preventDefault();interact();return;}if(code==='Escape'){e.preventDefault();closeModal();return;}const movementCodes={KeyW:'w',KeyA:'a',KeyS:'s',KeyD:'d',ArrowUp:'arrowup',ArrowDown:'arrowdown',ArrowLeft:'arrowleft',ArrowRight:'arrowright'};const key=movementCodes[code];if(key){e.preventDefault();keys.add(key);}});document.addEventListener('keyup',e=>{const movementCodes={KeyW:'w',KeyA:'a',KeyS:'s',KeyD:'d',ArrowUp:'arrowup',ArrowDown:'arrowdown',ArrowLeft:'arrowleft',ArrowRight:'arrowright'};const key=movementCodes[e.code];if(key)keys.delete(key);});
   document.querySelectorAll('#touchPad [data-dir]').forEach(btn=>{const map={up:'w',down:'s',left:'a',right:'d'};const start=e=>{e.preventDefault();keys.add(map[btn.dataset.dir])};const end=e=>{e.preventDefault();keys.delete(map[btn.dataset.dir])};btn.addEventListener('pointerdown',start);btn.addEventListener('pointerup',end);btn.addEventListener('pointercancel',end);btn.addEventListener('pointerleave',end)});
 
   function loop(now){const dt=Math.min(.032,(now-last)/1000);last=now;updatePlayer(dt);drawBackground(now);drawGrid();drawWater();drawRoads();zones.forEach(z=>drawZone(z,now));drawProps(now);drawNpcs(now);drawSecret();drawPlayer(now);requestAnimationFrame(loop)}
