@@ -1,151 +1,195 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0a0d12">
-  <meta name="description" content="ИНФО.WORLD — интерактивный мир для изучения информатики, программирования, ОГЭ, ЕГЭ и AI.">
-  <title>ИНФО.WORLD — исследуй информатику</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081019">
+<title>ИНФО.WORLD — цифровой город знаний</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
-  <div id="boot" class="boot-screen">
-    <div class="boot-orb"></div>
-    <div class="boot-content">
-      <div class="boot-mark">ИНФО<span>.</span>WORLD</div>
-      <div class="boot-line">INITIALIZING LEARNING WORLD</div>
-      <div class="boot-progress"><span id="bootProgress"></span></div>
-      <div class="boot-meta"><span>BUILD 2.3</span><span id="bootPercent">0%</span></div>
-    </div>
-  </div>
+<div id="boot" class="boot"><div class="boot-core"><div class="boot-logo">ИНФО<span>.</span>WORLD</div><div class="boot-sub">DIGITAL LEARNING CITY</div><div class="boot-progress"><span id="bootProgress"></span></div><div class="boot-meta"><span>BUILD 3.0</span><span id="bootPercent">0%</span></div></div></div>
 
-  <div class="app" id="app" aria-hidden="true">
-    <header class="topbar">
-      <div class="brand-wrap">
-        <button class="brand" id="brandBtn" title="Вернуться в центр">
-          <span class="brand-dot"></span>
-          <span>ИНФО<span class="accent">.</span>WORLD</span>
-        </button>
-        <span class="status"><i></i> WORLD ONLINE</span>
-      </div>
-      <div class="top-actions">
-        <button class="icon-btn" id="helpBtn" aria-label="Помощь">?</button>
-        <button class="profile-chip" id="profileBtn"><span class="avatar">Х</span><span>ИССЛЕДОВАТЕЛЬ</span></button>
-      </div>
-    </header>
+<div id="app" class="app" aria-hidden="true">
+<header class="topbar">
+  <button class="brand" id="brandBtn" aria-label="Вернуться в центр"><span class="brand-mark"></span><span>ИНФО<span class="accent">.</span>WORLD</span></button>
+  <div class="top-center"><span class="live-dot"></span><span>WORLD ONLINE</span><span class="top-sep">/</span><span id="clock">00:00</span></div>
+  <div class="top-actions"><button id="helpBtn" class="top-btn">?</button><button id="profileBtn" class="profile-chip"><span class="avatar">Х</span><span>ИССЛЕДОВАТЕЛЬ</span></button></div>
+</header>
 
-    <main class="world-layout">
-      <aside class="side left-panel" id="leftPanel">
-        <div class="panel-kicker">МИР</div>
-        <div class="location-card">
-          <div class="location-icon">⌖</div>
-          <div>
-            <div class="location-name" id="locationName">ЦЕНТР ИНФО</div>
-            <div class="location-sub" id="locationSub">STARTING DISTRICT</div>
-          </div>
-        </div>
+<main class="layout">
+  <aside class="panel left-panel">
+    <div class="eyebrow">ТВОЙ МИР</div>
+    <div class="location" id="locationCard"><div class="location-icon">⌖</div><div><strong id="locationName">INFO HUB</strong><span id="locationSub">CENTRAL PLAZA</span></div></div>
+    <div class="panel-block"><div class="block-title">РАЙОНЫ</div><div id="navList" class="nav-list"></div></div>
+    <div class="panel-block guide"><div class="block-title">УПРАВЛЕНИЕ</div><div class="keys"><div><kbd>W A S D</kbd><span>движение</span></div><div><kbd>E</kbd><span>взаимодействие</span></div><div><kbd>DRAG</kbd><span>камера</span></div></div></div>
+  </aside>
 
-        <div class="panel-section">
-          <div class="panel-title">НАВИГАЦИЯ</div>
-          <div class="nav-list" id="navList"></div>
-        </div>
+  <section id="viewport" class="viewport">
+    <svg id="world" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" role="application" aria-label="Интерактивный мир ИНФО.WORLD">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f1b29"/><stop offset=".55" stop-color="#071018"/><stop offset="1" stop-color="#0a1118"/></linearGradient>
+        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#152331"/><stop offset="1" stop-color="#0d171f"/></linearGradient>
+        <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35434e"/><stop offset="1" stop-color="#202a33"/></linearGradient>
+        <linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123f57"/><stop offset="1" stop-color="#0a2637"/></linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee2ff" stop-opacity=".9"/><stop offset="1" stop-color="#20516f" stop-opacity=".7"/></linearGradient>
+        <linearGradient id="python" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#76f0ba"/><stop offset="1" stop-color="#1e6c50"/></linearGradient>
+        <linearGradient id="algo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b49aff"/><stop offset="1" stop-color="#4e3f91"/></linearGradient>
+        <linearGradient id="ai" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd099"/><stop offset="1" stop-color="#82501f"/></linearGradient>
+        <linearGradient id="web" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#78cfff"/><stop offset="1" stop-color="#255d83"/></linearGradient>
+        <linearGradient id="exam" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9de9"/><stop offset="1" stop-color="#703262"/></linearGradient>
+        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".42"/></filter>
+        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#000" flood-opacity=".25"/></filter>
+        <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#89a7ba" stroke-opacity=".08" stroke-width="1"/></pattern>
+      </defs>
+      <rect width="1200" height="760" fill="url(#sky)"/>
+      <rect x="28" y="28" width="1144" height="704" rx="26" fill="url(#ground)" stroke="#243542"/>
+      <rect x="28" y="28" width="1144" height="704" rx="26" fill="url(#grid)" opacity=".48"/>
+      <g id="worldGroup">
+        <rect x="0" y="0" width="2400" height="1500" fill="#101b24" opacity=".02"/>
+        <path d="M420 760 C650 650 890 660 1120 770 C1390 900 1540 1040 1890 760 L2030 760 L2030 1120 C1630 1230 1330 1170 1080 1030 C820 885 610 970 370 1110 Z" fill="url(#water)" opacity=".95"/>
+        <path d="M450 770 C690 675 900 694 1110 800 C1370 930 1540 1040 1910 790" fill="none" stroke="#66cdea" stroke-opacity=".16" stroke-width="8"/>
+        <path d="M440 810 C700 720 900 735 1100 835 C1380 972 1540 1088 1890 820" fill="none" stroke="#66cdea" stroke-opacity=".09" stroke-width="3" stroke-dasharray="20 24"/>
+        <g class="road" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430" stroke="#0a0f14" stroke-width="112"/>
+          <path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190" stroke="#0a0f14" stroke-width="112"/>
+          <path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465" stroke="#0a0f14" stroke-width="112"/>
+          <path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200" stroke="#0a0f14" stroke-width="112"/>
+          <path d="M1175 930 C1170 800 1168 675 1165 520" stroke="#0a0f14" stroke-width="112"/>
+          <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430" stroke="url(#road)" stroke-width="84"/>
+          <path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190" stroke="url(#road)" stroke-width="84"/>
+          <path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465" stroke="url(#road)" stroke-width="84"/>
+          <path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200" stroke="url(#road)" stroke-width="84"/>
+          <path d="M1175 930 C1170 800 1168 675 1165 520" stroke="url(#road)" stroke-width="84"/>
+          <g stroke="#b6c6ce" stroke-opacity=".28" stroke-width="4" stroke-dasharray="24 28">
+            <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430"/><path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190"/><path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465"/><path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200"/><path d="M1175 930 C1170 800 1168 675 1165 520"/>
+          </g>
+        </g>
 
-        <div class="panel-section compact-note">
-          <div class="panel-title">УПРАВЛЕНИЕ</div>
-          <div class="control-row"><kbd>WASD</kbd><span>движение</span></div>
-          <div class="control-row"><kbd>E</kbd><span>взаимодействие</span></div>
-          <div class="control-row"><kbd>DRAG</kbd><span>камера</span></div>
-        </div>
-      </aside>
+        <!-- INFO HUB -->
+        <g class="site" data-site="hub" data-x="1175" data-y="930" filter="url(#shadow)">
+          <ellipse cx="1175" cy="1010" rx="235" ry="58" fill="#000" opacity=".28"/>
+          <rect x="1010" y="845" width="330" height="150" rx="24" fill="#152d3a" stroke="#63dbff" stroke-opacity=".3" stroke-width="3"/>
+          <path d="M1042 876H1308V965H1042Z" fill="#0b1821" stroke="#7adfff" stroke-opacity=".18"/>
+          <rect x="1088" y="900" width="176" height="10" rx="5" fill="#63dbff" opacity=".7"/>
+          <rect x="1117" y="922" width="118" height="7" rx="3.5" fill="#6ee4be" opacity=".55"/>
+          <circle cx="1175" cy="860" r="26" fill="#0c1a24" stroke="#6bdcff" stroke-width="3"/>
+          <path d="M1175 837L1182 852L1175 859L1168 852Z" fill="#7ce6ff"/>
+          <text x="1175" y="1025" text-anchor="middle" class="site-title">INFO HUB</text>
+          <text x="1175" y="1044" text-anchor="middle" class="site-sub">CENTRAL PLAZA</text>
+        </g>
 
-      <section class="viewport" id="viewport">
-        <canvas id="worldCanvas"></canvas>
-        <div class="world-vignette"></div>
-        <div class="world-title" id="worldTitle">
-          <span class="eyebrow">WELCOME TO</span>
-          <h1>INFO.WORLD</h1>
-          <p>Исследуй. Решай. Создавай.</p>
-        </div>
-        <div class="hint" id="hint"><span class="hint-key">E</span><span id="hintText">Подойди к объекту</span></div>
-        <div class="coordinate" id="coordinate">X 0 · Y 0</div>
-        <div class="map-controls">
-          <button class="map-btn" id="zoomOut">−</button>
-          <span id="zoomLabel">100%</span>
-          <button class="map-btn" id="zoomIn">+</button>
-          <button class="map-btn split" id="recenter" title="Центрировать">⌂</button>
-        </div>
-        <div class="mini-compass"><span>N</span><i></i></div>
+        <!-- PYTHON -->
+        <g class="site" data-site="python" data-x="430" data-y="430" filter="url(#shadow)">
+          <ellipse cx="430" cy="505" rx="200" ry="48" fill="#000" opacity=".24"/>
+          <g transform="translate(318 300)">
+            <path d="M0 55L80 18L170 40L90 79Z" fill="#224937"/>
+            <path d="M0 55V200L90 228V79Z" fill="#173027"/>
+            <path d="M90 79L170 40V183L90 228Z" fill="#2a5944"/>
+            <path d="M18 78L88 48L147 61L87 91Z" fill="url(#python)" opacity=".9"/>
+            <g fill="#d5fff0" opacity=".72"><rect x="26" y="98" width="44" height="20" rx="4"/><rect x="26" y="128" width="44" height="20" rx="4"/><rect x="101" y="88" width="43" height="20" rx="4"/><rect x="101" y="118" width="43" height="20" rx="4"/><rect x="101" y="148" width="43" height="20" rx="4"/></g>
+            <rect x="42" y="34" width="74" height="18" rx="6" fill="#8cf3c3"/>
+            <text x="79" y="48" text-anchor="middle" font-family="DM Mono" font-size="12" font-weight="700" fill="#123d2b">&lt;/&gt;</text>
+            <rect x="-24" y="190" width="212" height="8" rx="4" fill="#091511" opacity=".7"/>
+          </g>
+          <g transform="translate(490 370)"><path d="M0 40L44 18L80 30L37 54Z" fill="#2e5c46"/><path d="M0 40V110L37 123V54Z" fill="#183b2c"/><path d="M37 54L80 30V98L37 123Z" fill="#356e52"/></g>
+          <text x="430" y="585" text-anchor="middle" class="site-title">PYTHON DISTRICT</text><text x="430" y="603" text-anchor="middle" class="site-sub">CODE CAMPUS</text>
+        </g>
 
-        <div class="mobile-actions">
-          <button id="mobileMenuBtn">☰</button>
-          <button id="mobileProgressBtn">◒</button>
-        </div>
+        <!-- ALGORITHM CITY -->
+        <g class="site" data-site="algo" data-x="1165" data-y="520" filter="url(#shadow)">
+          <ellipse cx="1165" cy="585" rx="195" ry="44" fill="#000" opacity=".24"/>
+          <g transform="translate(1040 335)">
+            <path d="M0 62L108 12L242 45L130 97Z" fill="#2a2452"/>
+            <path d="M0 62V190L130 228V97Z" fill="#201d3b"/>
+            <path d="M130 97L242 45V174L130 228Z" fill="#3b326f"/>
+            <g fill="url(#algo)" stroke="#d7cbff" stroke-opacity=".32"><circle cx="34" cy="97" r="18"/><circle cx="88" cy="77" r="18"/><circle cx="144" cy="98" r="18"/><circle cx="196" cy="72" r="18"/></g>
+            <path d="M50 97L72 84M106 78L126 94M162 94L181 78" stroke="#d9cbff" stroke-width="4" stroke-opacity=".5"/>
+            <text x="122" y="160" text-anchor="middle" font-family="DM Mono" font-size="16" font-weight="700" fill="#efeaff">Σ</text>
+          </g>
+          <text x="1165" y="650" text-anchor="middle" class="site-title">ALGORITHM CITY</text><text x="1165" y="668" text-anchor="middle" class="site-sub">LOGIC CAMPUS</text>
+        </g>
 
-        <div class="touch-pad" id="touchPad" aria-label="Управление персонажем">
-          <button data-dir="up">▲</button>
-          <div><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div>
-        </div>
-      </section>
+        <!-- AI LAB -->
+        <g class="site" data-site="ai" data-x="1810" data-y="465" filter="url(#shadow)">
+          <ellipse cx="1810" cy="560" rx="220" ry="48" fill="#000" opacity=".24"/>
+          <path d="M1630 470 Q1810 290 1990 470 L1990 560 Q1810 615 1630 560Z" fill="#1e2a2f" stroke="#ffcc8b" stroke-opacity=".35" stroke-width="4"/>
+          <path d="M1660 474 Q1810 330 1960 474L1960 520 Q1810 560 1660 520Z" fill="url(#ai)" opacity=".75"/>
+          <g fill="#ffe2bc" opacity=".9"><circle cx="1710" cy="450" r="9"/><circle cx="1770" cy="405" r="9"/><circle cx="1830" cy="390" r="9"/><circle cx="1890" cy="410" r="9"/><circle cx="1940" cy="455" r="9"/></g>
+          <g stroke="#ffe6c6" stroke-opacity=".5" stroke-width="3"><path d="M1710 450L1770 405L1830 390L1890 410L1940 455"/></g>
+          <rect x="1742" y="510" width="136" height="34" rx="10" fill="#0d1b22" stroke="#ffcb8c" stroke-opacity=".28"/>
+          <text x="1810" y="532" text-anchor="middle" class="site-title">AI CORE</text>
+          <text x="1810" y="594" text-anchor="middle" class="site-title">AI LAB</text><text x="1810" y="612" text-anchor="middle" class="site-sub">NEURAL RESEARCH</text>
+        </g>
 
-      <aside class="side right-panel" id="rightPanel">
-        <div class="profile-card">
-          <div class="profile-ring" id="levelRing"><span id="levelValue">1</span><small>LEVEL</small></div>
-          <div class="profile-info">
-            <div class="profile-name">ИССЛЕДОВАТЕЛЬ</div>
-            <div class="profile-xp"><span id="xpValue">0</span> XP</div>
-            <div class="xp-bar"><span id="xpBar"></span></div>
-          </div>
-        </div>
+        <!-- WEB LAB -->
+        <g class="site" data-site="web" data-x="2050" data-y="1200" filter="url(#shadow)">
+          <ellipse cx="2050" cy="1290" rx="210" ry="44" fill="#000" opacity=".24"/>
+          <g transform="translate(1935 985)">
+            <path d="M0 70L115 25L230 70L115 116Z" fill="#1b3f5d"/>
+            <path d="M0 70V260L115 305V116Z" fill="#173049"/>
+            <path d="M115 116L230 70V260L115 305Z" fill="#285474"/>
+            <g opacity=".85"><rect x="20" y="90" width="75" height="14" rx="4" fill="#79d0ff"/><rect x="20" y="118" width="54" height="10" rx="4" fill="#b7e6ff" opacity=".65"/><rect x="20" y="142" width="86" height="10" rx="4" fill="#b7e6ff" opacity=".4"/><rect x="136" y="108" width="62" height="76" rx="8" fill="#0b1b29" stroke="#76cbff" stroke-opacity=".45"/></g>
+            <path d="M78 46L115 25L152 40L114 56Z" fill="#78cfff"/>
+            <text x="115" y="51" text-anchor="middle" font-family="DM Mono" font-size="12" font-weight="700" fill="#0e2b40">WEB</text>
+          </g>
+          <text x="2050" y="1398" text-anchor="middle" class="site-title">WEB LAB</text><text x="2050" y="1416" text-anchor="middle" class="site-sub">CREATOR DISTRICT</text>
+        </g>
 
-        <div class="panel-section">
-          <div class="panel-title">СЕЙЧАС</div>
-          <div class="mission-card" id="missionCard">
-            <div class="mission-index">01</div>
-            <div class="mission-copy"><strong id="missionTitle">Открыть Python District</strong><span id="missionText">Найди первую зону и войди в неё.</span></div>
-          </div>
-          <button class="ghost-btn" id="focusMission">Показать на карте <span>→</span></button>
-        </div>
+        <!-- EXAM ARENA -->
+        <g class="site" data-site="exam" data-x="420" data-y="1190" filter="url(#shadow)">
+          <ellipse cx="420" cy="1300" rx="235" ry="52" fill="#000" opacity=".24"/>
+          <path d="M205 1200 Q420 1040 635 1200L600 1350Q420 1465 240 1350Z" fill="#311c33" stroke="#ff9ee7" stroke-opacity=".35" stroke-width="4"/>
+          <path d="M265 1207 Q420 1110 575 1207L545 1300Q420 1375 295 1300Z" fill="url(#exam)" opacity=".82"/>
+          <path d="M320 1228 Q420 1170 520 1228" fill="none" stroke="#ffe1f7" stroke-width="8" stroke-opacity=".55"/>
+          <rect x="350" y="1260" width="140" height="38" rx="10" fill="#0f1820" stroke="#ffb9ed" stroke-opacity=".35"/>
+          <text x="420" y="1285" text-anchor="middle" class="site-title">EXAM ARENA</text>
+          <text x="420" y="1418" text-anchor="middle" class="site-sub">ОГЭ • ЕГЭ</text>
+        </g>
 
-        <div class="panel-section">
-          <div class="panel-title">НАВЫКИ</div>
-          <div class="skill" data-skill="python"><div><span>Python</span><b>0%</b></div><div class="skill-bar"><span></span></div></div>
-          <div class="skill" data-skill="ai"><div><span>AI</span><b>0%</b></div><div class="skill-bar"><span></span></div></div>
-          <div class="skill" data-skill="algo"><div><span>Алгоритмы</span><b>0%</b></div><div class="skill-bar"><span></span></div></div>
-          <div class="skill" data-skill="web"><div><span>Web</span><b>0%</b></div><div class="skill-bar"><span></span></div></div>
-        </div>
+        <!-- decorative blocks -->
+        <g opacity=".95">
+          <g transform="translate(700 780)"><rect x="0" y="0" width="28" height="42" rx="6" fill="#1c3944"/><rect x="5" y="6" width="18" height="4" rx="2" fill="#6ce0ff"/><rect x="5" y="15" width="18" height="4" rx="2" fill="#6ce0ff" opacity=".45"/></g>
+          <g transform="translate(1350 820)"><rect x="0" y="0" width="28" height="42" rx="6" fill="#1d3430"/><rect x="5" y="6" width="18" height="4" rx="2" fill="#78f1c2"/><rect x="5" y="15" width="18" height="4" rx="2" fill="#78f1c2" opacity=".4"/></g>
+        </g>
 
-        <div class="panel-section">
-          <div class="panel-title">ОТКРЫТИЯ</div>
-          <div class="discover-count"><strong id="discoverCount">0</strong><span>/ 6 зон</span></div>
-          <div class="discover-bar"><span id="discoverBar"></span></div>
-        </div>
+        <!-- trees -->
+        <g fill="#173d39" stroke="#255b53" stroke-opacity=".65" stroke-width="2">
+          <g transform="translate(900 1030)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
+          <g transform="translate(1470 1000)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
+          <g transform="translate(1540 1160)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
+        </g>
 
-        <div class="panel-footer"><span>LOCAL SAVE</span><span id="saveState">SYNCED</span></div>
-      </aside>
-    </main>
-  </div>
+        <!-- NPCs -->
+        <g id="npcsLayer"></g>
+        <g id="playerLayer"></g>
+        <g id="secretLayer"></g>
+      </g>
+    </svg>
+    <div class="world-hud"><div class="hud-title"><span class="hud-kicker">CURRENT OBJECTIVE</span><strong id="hudMission">Открыть PYTHON DISTRICT</strong></div><div class="hud-controls"><span><kbd>WASD</kbd> движение</span><span><kbd>E</kbd> взаимодействие</span></div></div>
+    <div class="map-controls"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">+</button><button id="recenter">⌂</button></div>
+    <div id="hint" class="hint"><span class="hint-key">E</span><span id="hintText">Подойти к объекту</span></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div class="touch-pad" id="touchPad"><button data-dir="up">▲</button><div><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div></div>
+  </section>
 
-  <div class="modal-backdrop" id="modalBackdrop" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal-close" id="modalClose">×</button>
-      <div class="modal-top"><span class="modal-code" id="modalCode">NODE 01</span><span class="modal-status" id="modalStatus">OPEN</span></div>
-      <h2 id="modalTitle">Python District</h2>
-      <p id="modalDescription"></p>
-      <div class="modal-grid">
-        <div><span class="modal-label">ФОКУС</span><strong id="modalFocus"></strong></div>
-        <div><span class="modal-label">УРОВЕНЬ</span><strong id="modalLevel"></strong></div>
-      </div>
-      <div class="mission-box">
-        <div><span class="modal-label">МИССИЯ</span><strong id="modalMission"></strong><p id="modalMissionText"></p></div>
-        <button class="primary-btn" id="modalAction">Войти</button>
-      </div>
-    </section>
-  </div>
+  <aside class="panel right-panel">
+    <div class="eyebrow">ПРОГРЕСС</div>
+    <div class="profile-card"><div class="level-ring"><span id="levelValue">1</span><small>LEVEL</small></div><div class="profile-main"><strong>ИССЛЕДОВАТЕЛЬ</strong><b><span id="xpValue">0</span> XP</b><div class="bar"><span id="xpBar"></span></div></div></div>
+    <div class="panel-block"><div class="block-title">СЕЙЧАС</div><div class="mission"><span>01</span><div><strong id="missionTitle">Открыть PYTHON DISTRICT</strong><p id="missionText">Найди район и доберись до его входа.</p></div></div><button id="focusMission" class="wide-btn">Показать на карте <span>→</span></button></div>
+    <div class="panel-block"><div class="block-title">НАВЫКИ</div><div class="skill" data-skill="python"><div><span>Python</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="ai"><div><span>AI</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="algo"><div><span>Алгоритмы</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="web"><div><span>Web</span><b>0%</b></div><div class="bar"><span></span></div></div></div>
+    <div class="panel-block discoveries"><div class="block-title">ОТКРЫТИЯ</div><div class="discover-num"><strong id="discoverCount">0</strong><span>/ 5 районов</span></div><div class="bar"><span id="discoverBar"></span></div></div>
+    <div class="panel-footer"><span>LOCAL SAVE</span><span id="saveState">SYNCED</span></div>
+  </aside>
+</main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="script.js?v=2.3"></script>
+<div id="modalBackdrop" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true"><button id="modalClose" class="modal-close">×</button><div class="modal-top"><span id="modalCode">ZONE 01</span><span id="modalStatus">OPEN</span></div><h2 id="modalTitle">Python District</h2><p id="modalDescription"></p><div class="modal-grid"><div><small>ФОКУС</small><strong id="modalFocus"></strong></div><div><small>УРОВЕНЬ</small><strong id="modalLevel"></strong></div></div><div class="mission-box"><div><small>МИССИЯ</small><strong id="modalMission"></strong><p id="modalMissionText"></p></div><button id="modalAction" class="primary-btn">Начать</button></div></section></div>
+
+<script src="script.js?v=3.0"></script>
+</div>
 </body>
 </html>
