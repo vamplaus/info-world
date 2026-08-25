@@ -10,9 +10,7 @@
   const world = $('world');
   const enterButton = $('enterButton');
   const map = $('schoolMap');
-  const stage = $('mapStage');
-  const tooltip = $('zoneTooltip');
-  const worldHint = $('worldHint');
+  const particles = $('particles');
   const dialog = $('zoneDialog');
   const dialogClose = $('dialogClose');
   const dialogAction = $('dialogAction');
@@ -20,142 +18,145 @@
   const zoneKicker = $('zoneKicker');
   const zoneTitle = $('zoneTitle');
   const zoneText = $('zoneText');
-  const particles = $('particles');
+  const tooltip = $('zoneTooltip');
 
   const zones = {
-    school:    {icon:'✦', kicker:'ГЛАВНОЕ ЗДАНИЕ', title:'Математическая школа №1', text:'Центральное пространство школы имени Х. И. Ибрагимова в городе Грозном. Отсюда начинается знакомство с образовательными направлениями, кружками, творческими студиями и спортивными секциями.'},
-    club:      {icon:'∑', kicker:'МАТЕМАТИКА', title:'Клуб математиков', text:'Пространство для математических кружков, олимпиадной подготовки, поиска нестандартных решений и развития исследовательского мышления.'},
-    magic:     {icon:'✧', kicker:'ТВОРЧЕСКОЕ НАПРАВЛЕНИЕ', title:'Волшебство', text:'Образное пространство для творческих и исследовательских занятий, где идея превращается в проект и собственное открытие.'},
-    medicine:  {icon:'+', kicker:'КРУЖОК', title:'Медицинский кружок', text:'Знакомство с естественно-научными дисциплинами, исследовательской культурой и проектной деятельностью.'},
-    chess:     {icon:'♞', kicker:'ИНТЕЛЛЕКТУАЛЬНЫЙ СПОРТ', title:'Шахматы в школе', text:'Тренировка логики, стратегического мышления, концентрации и умения видеть несколько шагов вперёд.'},
-    ai:        {icon:'◉', kicker:'ТЕХНОЛОГИИ', title:'AI Course', text:'Пространство для знакомства с искусственным интеллектом, современными цифровыми технологиями, данными и интеллектуальными системами.'},
-    python:    {icon:'⌘', kicker:'ПРОГРАММИРОВАНИЕ', title:'Python District', text:'Программирование, алгоритмическое мышление и практическая разработка. Здесь код превращается в работающие решения.'},
-    exam:      {icon:'★', kicker:'ДОСТИЖЕНИЯ', title:'Exam Arena', text:'Подготовка к экзаменам, интеллектуальным соревнованиям и систематическая работа над знаниями.'},
-    animation: {icon:'◌', kicker:'ТВОРЧЕСКАЯ СТУДИЯ', title:'Студия «Мульт-анимация»', text:'Создание визуальных историй, анимации и цифровых творческих проектов от идеи до готовой работы.'},
-    vocal:     {icon:'♫', kicker:'ИСКУССТВО', title:'Вокал', text:'Развитие музыкальных способностей, голоса, слуха и сценического мастерства.'},
-    robotics:  {icon:'⚙', kicker:'ИНЖЕНЕРИЯ', title:'Robotics Hub', text:'Робототехника, конструирование, программирование устройств и инженерное мышление через практические проекты.'},
-    english:   {icon:'A', kicker:'ЯЗЫКИ', title:'English A–Z', text:'Изучение английского языка и развитие навыков общения, понимания и уверенного использования языка.'},
-    judo:      {icon:'◈', kicker:'СПОРТ', title:'Дзюдо', text:'Спортивная подготовка, дисциплина, техника и развитие физических качеств.'},
-    dance:     {icon:'✦', kicker:'КУЛЬТУРА', title:'Танцы народов Кавказа', text:'Знакомство с культурным наследием, традицией и выразительностью народного танца.'},
-    basketball:{icon:'◉', kicker:'СПОРТ', title:'Баскетбол', text:'Командная работа, техника игры, физическая подготовка и развитие спортивных навыков.'},
-    volleyball:{icon:'◌', kicker:'СПОРТ', title:'Волейбол', text:'Командная спортивная секция, тренировки, координация и игровая тактика.'}
+    school: { icon:'✦', kicker:'ГЛАВНОЕ ЗДАНИЕ', title:'Математическая школа №1', text:'Центральное пространство школы имени Х. И. Ибрагимова. Здесь объединяются учеба, кружки, технологии, творчество и спорт.' },
+    club: { icon:'∑', kicker:'КРУЖОК', title:'Клуб математиков', text:'Пространство для математических кружков, олимпиадной подготовки и решения нестандартных задач.' },
+    magic: { icon:'✦', kicker:'НАПРАВЛЕНИЕ', title:'Волшебство', text:'Творческое пространство для исследовательских, образовательных и авторских проектов.' },
+    medicine: { icon:'✚', kicker:'КРУЖОК', title:'Медицинский кружок', text:'Знакомство с естественными науками, исследовательской работой и проектной деятельностью.' },
+    chess: { icon:'♞', kicker:'ИНТЕЛЛЕКТУАЛЬНЫЙ СПОРТ', title:'Шахматы в школе', text:'Тренировка логики, стратегии, концентрации и аналитического мышления.' },
+    ai: { icon:'AI', kicker:'ТЕХНОЛОГИИ', title:'AI Course', text:'Направление, посвященное искусственному интеллекту, данным и современным цифровым технологиям.' },
+    python: { icon:'⌘', kicker:'ПРОГРАММИРОВАНИЕ', title:'Python District', text:'Программирование, алгоритмическое мышление и практическая разработка цифровых проектов.' },
+    exam: { icon:'★', kicker:'ДОСТИЖЕНИЯ', title:'Exam Arena', text:'Подготовка к экзаменам, интеллектуальным соревнованиям и системной проверке знаний.' },
+    animation: { icon:'◉', kicker:'ТВОРЧЕСТВО', title:'Студия «Мульт-анимация»', text:'Создание анимации, визуальных историй и цифровых творческих проектов.' },
+    vocal: { icon:'♫', kicker:'ИСКУССТВО', title:'Вокал', text:'Развитие музыкальных способностей, слуха, голоса и сценического мастерства.' },
+    robotics: { icon:'⚙', kicker:'ТЕХНОЛОГИИ', title:'Robotics Hub', text:'Инженерное пространство для робототехники, конструирования и практической работы с технологиями.' },
+    english: { icon:'A', kicker:'ЯЗЫКИ', title:'English A-Z', text:'Изучение английского языка и развитие коммуникативных навыков.' },
+    judo: { icon:'◈', kicker:'СПОРТ', title:'Дзюдо', text:'Спортивная подготовка, дисциплина, координация и развитие физических качеств.' },
+    dance: { icon:'♢', kicker:'КУЛЬТУРА', title:'Танцы народов Кавказа', text:'Знакомство с культурным наследием и традициями народного танца.' },
+    basketball: { icon:'◌', kicker:'СПОРТ', title:'Баскетбол', text:'Тренировки, командная работа и развитие игровых навыков.' },
+    volleyball: { icon:'◍', kicker:'СПОРТ', title:'Волейбол', text:'Командная спортивная секция и регулярные тренировки.' }
   };
 
-  const loadSteps = [
-    ['Подготовка пространства', 12],
-    ['Загрузка карты школы', 32],
-    ['Активация учебных направлений', 57],
-    ['Включение освещения', 78],
-    ['Система готова', 100]
-  ];
+  let booted = false;
 
-  let started = false;
-  function setProgress(value, text){
-    loaderBar.style.width = value + '%';
-    loaderPercent.textContent = value + '%';
-    if(text) loaderStatus.textContent = text;
+  function setProgress(value, status) {
+    const n = Math.max(0, Math.min(100, Math.round(value)));
+    loaderBar.style.width = n + '%';
+    loaderPercent.textContent = n + '%';
+    if (status) loaderStatus.textContent = status;
   }
 
-  function runLoader(){
-    let i = 0;
-    const next = () => {
-      const [text, value] = loadSteps[i];
-      setProgress(value, text);
-      i += 1;
-      if(i < loadSteps.length) setTimeout(next, i === loadSteps.length - 1 ? 650 : 520);
-      else setTimeout(showWelcome, 900);
-    };
-    setTimeout(next, 220);
+  function preloadMap() {
+    return new Promise((resolve, reject) => {
+      if (map.complete) {
+        map.naturalWidth ? resolve() : reject(new Error('Map image failed to load'));
+        return;
+      }
+      map.addEventListener('load', resolve, { once:true });
+      map.addEventListener('error', () => reject(new Error('Map image failed to load')), { once:true });
+    });
   }
 
-  function showWelcome(){
-    loader.classList.add('is-leaving');
-    setTimeout(() => { welcome.hidden = false; }, 500);
+  async function boot() {
+    if (booted) return;
+    booted = true;
+    const stages = [
+      [10, 'ПОДГОТОВКА ПРОСТРАНСТВА'],
+      [28, 'ЗАГРУЗКА КАРТЫ'],
+      [52, 'ПРОВЕРКА ИНТЕРАКТИВНЫХ ЗОН'],
+      [76, 'ВКЛЮЧЕНИЕ ОСВЕЩЕНИЯ'],
+      [92, 'АКТИВАЦИЯ ПРОСТРАНСТВА']
+    ];
+    try {
+      const imageReady = preloadMap();
+      for (const [value, status] of stages) {
+        setProgress(value, status);
+        await new Promise(r => setTimeout(r, 300));
+      }
+      await imageReady;
+      setProgress(100, 'КАРТА ГОТОВА');
+      await new Promise(r => setTimeout(r, 550));
+      loader.classList.add('is-leaving');
+      await new Promise(r => setTimeout(r, 650));
+      loader.hidden = true;
+      welcome.hidden = false;
+    } catch (error) {
+      console.error(error);
+      loaderStatus.textContent = 'НЕ УДАЛОСЬ ЗАГРУЗИТЬ КАРТУ';
+      loaderPercent.textContent = '—';
+    }
   }
 
-  function enterWorld(){
-    if(started) return;
-    started = true;
-    enterButton.disabled = true;
+  function enterWorld() {
     welcome.classList.add('is-leaving');
     setTimeout(() => {
       welcome.hidden = true;
       world.hidden = false;
-      requestAnimationFrame(() => {
-        world.classList.add('is-visible', 'entering');
-        setTimeout(() => {
-          world.classList.remove('entering');
-          world.classList.add('ready');
-          worldHint.textContent = 'Карта активна — наведите курсор на любое здание';
-        }, 2100);
-      });
-    }, 430);
+      world.classList.add('is-visible', 'entering');
+      requestAnimationFrame(() => createParticles());
+      setTimeout(() => {
+        world.classList.remove('entering');
+        world.classList.add('ready');
+      }, 2150);
+    }, 520);
   }
 
-  function openZone(key){
-    const z = zones[key];
-    if(!z) return;
-    zoneIcon.textContent = z.icon;
-    zoneKicker.textContent = z.kicker;
-    zoneTitle.textContent = z.title;
-    zoneText.textContent = z.text;
-    worldHint.textContent = z.title;
+  function createParticles() {
+    if (particles.dataset.ready) return;
+    particles.dataset.ready = '1';
+    const palette = ['#ffd77e', '#9edcff', '#a783ff', '#72d9a3'];
+    for (let i = 0; i < 52; i++) {
+      const p = document.createElement('i');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = 55 + Math.random() * 50 + '%';
+      p.style.setProperty('--dx', ((Math.random() - .5) * 90) + 'px');
+      p.style.setProperty('--dur', (7 + Math.random() * 9) + 's');
+      p.style.setProperty('--delay', (-Math.random() * 12) + 's');
+      p.style.setProperty('--particle', palette[Math.floor(Math.random() * palette.length)]);
+      particles.appendChild(p);
+    }
+  }
+
+  function openZone(id, button) {
+    const zone = zones[id];
+    if (!zone) return;
+    document.querySelectorAll('.hotspot.active').forEach(el => el.classList.remove('active'));
+    if (button) button.classList.add('active');
+    zoneIcon.textContent = zone.icon;
+    zoneKicker.textContent = zone.kicker;
+    zoneTitle.textContent = zone.title;
+    zoneText.textContent = zone.text;
     tooltip.style.display = 'none';
-    if(!dialog.open) dialog.showModal();
+    if (!dialog.open) dialog.showModal();
   }
 
-  document.querySelectorAll('.hotspot').forEach((button) => {
-    button.addEventListener('click', () => openZone(button.dataset.zone));
+  document.querySelectorAll('.hotspot').forEach(button => {
+    const zone = zones[button.dataset.zone];
+    button.addEventListener('click', () => openZone(button.dataset.zone, button));
     button.addEventListener('pointerenter', () => {
-      const z = zones[button.dataset.zone];
-      if(!z) return;
-      tooltip.querySelector('span').textContent = z.title;
+      if (!zone || !world.classList.contains('ready')) return;
+      tooltip.textContent = zone.title;
+      tooltip.style.left = `calc(${button.style.getPropertyValue('--x')} + 10px)`;
+      tooltip.style.top = `calc(${button.style.getPropertyValue('--y')} + 10px)`;
       tooltip.style.display = 'block';
-      worldHint.textContent = z.title;
     });
-    button.addEventListener('pointermove', (event) => {
-      const rect = stage.getBoundingClientRect();
-      tooltip.style.left = Math.max(8, Math.min(rect.width - 180, event.clientX - rect.left)) + 'px';
-      tooltip.style.top = Math.max(8, Math.min(rect.height - 40, event.clientY - rect.top)) + 'px';
-    });
-    button.addEventListener('pointerleave', () => {
-      tooltip.style.display = 'none';
-      if(!dialog.open) worldHint.textContent = 'Наведите курсор на здание и нажмите, чтобы узнать больше';
-    });
+    button.addEventListener('pointerleave', () => { tooltip.style.display = 'none'; });
   });
 
   enterButton.addEventListener('click', enterWorld);
   dialogClose.addEventListener('click', () => dialog.close());
   dialogAction.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('close', () => { if(started) worldHint.textContent = 'Карта активна — выберите следующее направление'; });
+  dialog.addEventListener('close', () => document.querySelectorAll('.hotspot.active').forEach(el => el.classList.remove('active')));
+  dialog.addEventListener('click', (event) => {
+    const rect = dialog.getBoundingClientRect();
+    const inside = rect.top <= event.clientY && event.clientY <= rect.bottom && rect.left <= event.clientX && event.clientX <= rect.right;
+    if (!inside) dialog.close();
+  });
 
-  // Ambient particles are generated once. They do not control the map and add no interaction burden.
-  for(let i = 0; i < 46; i++){
-    const p = document.createElement('i');
-    p.className = 'particle';
-    p.style.left = (4 + Math.random() * 92) + '%';
-    p.style.top = (22 + Math.random() * 73) + '%';
-    p.style.setProperty('--dur', (6 + Math.random() * 8) + 's');
-    p.style.setProperty('--delay', (-Math.random() * 12) + 's');
-    p.style.setProperty('--dx', ((Math.random() - .5) * 60) + 'px');
-    p.style.setProperty('--particle', Math.random() > .72 ? '#ffd67b' : Math.random() > .5 ? '#76cfff' : '#d7a34e');
-    particles.appendChild(p);
-  }
-
-  // Explicitly block the old control model: no wheel zoom, no drag, no WASD/arrows.
-  window.addEventListener('wheel', (event) => { if(world.classList.contains('ready')) event.preventDefault(); }, {passive:false});
-  window.addEventListener('keydown', (event) => {
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','W','a','A','s','S','d','D'].includes(event.key)) {
-      event.preventDefault();
-    }
-  }, {passive:false});
-  stage.addEventListener('dragstart', (event) => event.preventDefault());
-  stage.addEventListener('contextmenu', (event) => event.preventDefault());
-
-  // Start only after the artwork itself is available. The map remains visually hidden until the entrance scene.
-  if(map.complete && map.naturalWidth) runLoader();
-  else {
-    map.addEventListener('load', runLoader, {once:true});
-    map.addEventListener('error', () => { loaderStatus.textContent = 'Не удалось загрузить карту'; setProgress(100); }, {once:true});
-  }
+  // Intentionally no keydown movement, no wheel zoom, no pinch zoom and no drag camera.
+  // Browser-level shortcuts are left untouched; only explicit map zones are interactive.
+  boot();
 })();
