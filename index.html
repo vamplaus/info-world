@@ -1,195 +1,49 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#081019">
-<title>ИНФО.WORLD — цифровой город знаний</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3.0">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07101b"><title>ИНФО.WORLD — город знаний</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="boot" class="boot"><div class="boot-core"><div class="boot-logo">ИНФО<span>.</span>WORLD</div><div class="boot-sub">DIGITAL LEARNING CITY</div><div class="boot-progress"><span id="bootProgress"></span></div><div class="boot-meta"><span>BUILD 3.0</span><span id="bootPercent">0%</span></div></div></div>
-
-<div id="app" class="app" aria-hidden="true">
-<header class="topbar">
-  <button class="brand" id="brandBtn" aria-label="Вернуться в центр"><span class="brand-mark"></span><span>ИНФО<span class="accent">.</span>WORLD</span></button>
-  <div class="top-center"><span class="live-dot"></span><span>WORLD ONLINE</span><span class="top-sep">/</span><span id="clock">00:00</span></div>
-  <div class="top-actions"><button id="helpBtn" class="top-btn">?</button><button id="profileBtn" class="profile-chip"><span class="avatar">Х</span><span>ИССЛЕДОВАТЕЛЬ</span></button></div>
-</header>
-
-<main class="layout">
-  <aside class="panel left-panel">
-    <div class="eyebrow">ТВОЙ МИР</div>
-    <div class="location" id="locationCard"><div class="location-icon">⌖</div><div><strong id="locationName">INFO HUB</strong><span id="locationSub">CENTRAL PLAZA</span></div></div>
-    <div class="panel-block"><div class="block-title">РАЙОНЫ</div><div id="navList" class="nav-list"></div></div>
-    <div class="panel-block guide"><div class="block-title">УПРАВЛЕНИЕ</div><div class="keys"><div><kbd>W A S D</kbd><span>движение</span></div><div><kbd>E</kbd><span>взаимодействие</span></div><div><kbd>DRAG</kbd><span>камера</span></div></div></div>
-  </aside>
-
-  <section id="viewport" class="viewport">
-    <svg id="world" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" role="application" aria-label="Интерактивный мир ИНФО.WORLD">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f1b29"/><stop offset=".55" stop-color="#071018"/><stop offset="1" stop-color="#0a1118"/></linearGradient>
-        <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#152331"/><stop offset="1" stop-color="#0d171f"/></linearGradient>
-        <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35434e"/><stop offset="1" stop-color="#202a33"/></linearGradient>
-        <linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123f57"/><stop offset="1" stop-color="#0a2637"/></linearGradient>
-        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee2ff" stop-opacity=".9"/><stop offset="1" stop-color="#20516f" stop-opacity=".7"/></linearGradient>
-        <linearGradient id="python" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#76f0ba"/><stop offset="1" stop-color="#1e6c50"/></linearGradient>
-        <linearGradient id="algo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b49aff"/><stop offset="1" stop-color="#4e3f91"/></linearGradient>
-        <linearGradient id="ai" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd099"/><stop offset="1" stop-color="#82501f"/></linearGradient>
-        <linearGradient id="web" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#78cfff"/><stop offset="1" stop-color="#255d83"/></linearGradient>
-        <linearGradient id="exam" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9de9"/><stop offset="1" stop-color="#703262"/></linearGradient>
-        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".42"/></filter>
-        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#000" flood-opacity=".25"/></filter>
-        <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#89a7ba" stroke-opacity=".08" stroke-width="1"/></pattern>
-      </defs>
-      <rect width="1200" height="760" fill="url(#sky)"/>
-      <rect x="28" y="28" width="1144" height="704" rx="26" fill="url(#ground)" stroke="#243542"/>
-      <rect x="28" y="28" width="1144" height="704" rx="26" fill="url(#grid)" opacity=".48"/>
-      <g id="worldGroup">
-        <rect x="0" y="0" width="2400" height="1500" fill="#101b24" opacity=".02"/>
-        <path d="M420 760 C650 650 890 660 1120 770 C1390 900 1540 1040 1890 760 L2030 760 L2030 1120 C1630 1230 1330 1170 1080 1030 C820 885 610 970 370 1110 Z" fill="url(#water)" opacity=".95"/>
-        <path d="M450 770 C690 675 900 694 1110 800 C1370 930 1540 1040 1910 790" fill="none" stroke="#66cdea" stroke-opacity=".16" stroke-width="8"/>
-        <path d="M440 810 C700 720 900 735 1100 835 C1380 972 1540 1088 1890 820" fill="none" stroke="#66cdea" stroke-opacity=".09" stroke-width="3" stroke-dasharray="20 24"/>
-        <g class="road" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430" stroke="#0a0f14" stroke-width="112"/>
-          <path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190" stroke="#0a0f14" stroke-width="112"/>
-          <path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465" stroke="#0a0f14" stroke-width="112"/>
-          <path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200" stroke="#0a0f14" stroke-width="112"/>
-          <path d="M1175 930 C1170 800 1168 675 1165 520" stroke="#0a0f14" stroke-width="112"/>
-          <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430" stroke="url(#road)" stroke-width="84"/>
-          <path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190" stroke="url(#road)" stroke-width="84"/>
-          <path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465" stroke="url(#road)" stroke-width="84"/>
-          <path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200" stroke="url(#road)" stroke-width="84"/>
-          <path d="M1175 930 C1170 800 1168 675 1165 520" stroke="url(#road)" stroke-width="84"/>
-          <g stroke="#b6c6ce" stroke-opacity=".28" stroke-width="4" stroke-dasharray="24 28">
-            <path d="M1175 930 C980 870 800 785 610 650 C520 585 470 520 430 430"/><path d="M1175 930 C1010 930 870 936 700 1030 C600 1085 520 1135 420 1190"/><path d="M1175 930 C1270 850 1350 760 1440 650 C1540 530 1640 490 1810 465"/><path d="M1175 930 C1330 940 1490 1000 1660 1130 C1760 1205 1880 1240 2050 1200"/><path d="M1175 930 C1170 800 1168 675 1165 520"/>
-          </g>
-        </g>
-
-        <!-- INFO HUB -->
-        <g class="site" data-site="hub" data-x="1175" data-y="930" filter="url(#shadow)">
-          <ellipse cx="1175" cy="1010" rx="235" ry="58" fill="#000" opacity=".28"/>
-          <rect x="1010" y="845" width="330" height="150" rx="24" fill="#152d3a" stroke="#63dbff" stroke-opacity=".3" stroke-width="3"/>
-          <path d="M1042 876H1308V965H1042Z" fill="#0b1821" stroke="#7adfff" stroke-opacity=".18"/>
-          <rect x="1088" y="900" width="176" height="10" rx="5" fill="#63dbff" opacity=".7"/>
-          <rect x="1117" y="922" width="118" height="7" rx="3.5" fill="#6ee4be" opacity=".55"/>
-          <circle cx="1175" cy="860" r="26" fill="#0c1a24" stroke="#6bdcff" stroke-width="3"/>
-          <path d="M1175 837L1182 852L1175 859L1168 852Z" fill="#7ce6ff"/>
-          <text x="1175" y="1025" text-anchor="middle" class="site-title">INFO HUB</text>
-          <text x="1175" y="1044" text-anchor="middle" class="site-sub">CENTRAL PLAZA</text>
-        </g>
-
-        <!-- PYTHON -->
-        <g class="site" data-site="python" data-x="430" data-y="430" filter="url(#shadow)">
-          <ellipse cx="430" cy="505" rx="200" ry="48" fill="#000" opacity=".24"/>
-          <g transform="translate(318 300)">
-            <path d="M0 55L80 18L170 40L90 79Z" fill="#224937"/>
-            <path d="M0 55V200L90 228V79Z" fill="#173027"/>
-            <path d="M90 79L170 40V183L90 228Z" fill="#2a5944"/>
-            <path d="M18 78L88 48L147 61L87 91Z" fill="url(#python)" opacity=".9"/>
-            <g fill="#d5fff0" opacity=".72"><rect x="26" y="98" width="44" height="20" rx="4"/><rect x="26" y="128" width="44" height="20" rx="4"/><rect x="101" y="88" width="43" height="20" rx="4"/><rect x="101" y="118" width="43" height="20" rx="4"/><rect x="101" y="148" width="43" height="20" rx="4"/></g>
-            <rect x="42" y="34" width="74" height="18" rx="6" fill="#8cf3c3"/>
-            <text x="79" y="48" text-anchor="middle" font-family="DM Mono" font-size="12" font-weight="700" fill="#123d2b">&lt;/&gt;</text>
-            <rect x="-24" y="190" width="212" height="8" rx="4" fill="#091511" opacity=".7"/>
-          </g>
-          <g transform="translate(490 370)"><path d="M0 40L44 18L80 30L37 54Z" fill="#2e5c46"/><path d="M0 40V110L37 123V54Z" fill="#183b2c"/><path d="M37 54L80 30V98L37 123Z" fill="#356e52"/></g>
-          <text x="430" y="585" text-anchor="middle" class="site-title">PYTHON DISTRICT</text><text x="430" y="603" text-anchor="middle" class="site-sub">CODE CAMPUS</text>
-        </g>
-
-        <!-- ALGORITHM CITY -->
-        <g class="site" data-site="algo" data-x="1165" data-y="520" filter="url(#shadow)">
-          <ellipse cx="1165" cy="585" rx="195" ry="44" fill="#000" opacity=".24"/>
-          <g transform="translate(1040 335)">
-            <path d="M0 62L108 12L242 45L130 97Z" fill="#2a2452"/>
-            <path d="M0 62V190L130 228V97Z" fill="#201d3b"/>
-            <path d="M130 97L242 45V174L130 228Z" fill="#3b326f"/>
-            <g fill="url(#algo)" stroke="#d7cbff" stroke-opacity=".32"><circle cx="34" cy="97" r="18"/><circle cx="88" cy="77" r="18"/><circle cx="144" cy="98" r="18"/><circle cx="196" cy="72" r="18"/></g>
-            <path d="M50 97L72 84M106 78L126 94M162 94L181 78" stroke="#d9cbff" stroke-width="4" stroke-opacity=".5"/>
-            <text x="122" y="160" text-anchor="middle" font-family="DM Mono" font-size="16" font-weight="700" fill="#efeaff">Σ</text>
-          </g>
-          <text x="1165" y="650" text-anchor="middle" class="site-title">ALGORITHM CITY</text><text x="1165" y="668" text-anchor="middle" class="site-sub">LOGIC CAMPUS</text>
-        </g>
-
-        <!-- AI LAB -->
-        <g class="site" data-site="ai" data-x="1810" data-y="465" filter="url(#shadow)">
-          <ellipse cx="1810" cy="560" rx="220" ry="48" fill="#000" opacity=".24"/>
-          <path d="M1630 470 Q1810 290 1990 470 L1990 560 Q1810 615 1630 560Z" fill="#1e2a2f" stroke="#ffcc8b" stroke-opacity=".35" stroke-width="4"/>
-          <path d="M1660 474 Q1810 330 1960 474L1960 520 Q1810 560 1660 520Z" fill="url(#ai)" opacity=".75"/>
-          <g fill="#ffe2bc" opacity=".9"><circle cx="1710" cy="450" r="9"/><circle cx="1770" cy="405" r="9"/><circle cx="1830" cy="390" r="9"/><circle cx="1890" cy="410" r="9"/><circle cx="1940" cy="455" r="9"/></g>
-          <g stroke="#ffe6c6" stroke-opacity=".5" stroke-width="3"><path d="M1710 450L1770 405L1830 390L1890 410L1940 455"/></g>
-          <rect x="1742" y="510" width="136" height="34" rx="10" fill="#0d1b22" stroke="#ffcb8c" stroke-opacity=".28"/>
-          <text x="1810" y="532" text-anchor="middle" class="site-title">AI CORE</text>
-          <text x="1810" y="594" text-anchor="middle" class="site-title">AI LAB</text><text x="1810" y="612" text-anchor="middle" class="site-sub">NEURAL RESEARCH</text>
-        </g>
-
-        <!-- WEB LAB -->
-        <g class="site" data-site="web" data-x="2050" data-y="1200" filter="url(#shadow)">
-          <ellipse cx="2050" cy="1290" rx="210" ry="44" fill="#000" opacity=".24"/>
-          <g transform="translate(1935 985)">
-            <path d="M0 70L115 25L230 70L115 116Z" fill="#1b3f5d"/>
-            <path d="M0 70V260L115 305V116Z" fill="#173049"/>
-            <path d="M115 116L230 70V260L115 305Z" fill="#285474"/>
-            <g opacity=".85"><rect x="20" y="90" width="75" height="14" rx="4" fill="#79d0ff"/><rect x="20" y="118" width="54" height="10" rx="4" fill="#b7e6ff" opacity=".65"/><rect x="20" y="142" width="86" height="10" rx="4" fill="#b7e6ff" opacity=".4"/><rect x="136" y="108" width="62" height="76" rx="8" fill="#0b1b29" stroke="#76cbff" stroke-opacity=".45"/></g>
-            <path d="M78 46L115 25L152 40L114 56Z" fill="#78cfff"/>
-            <text x="115" y="51" text-anchor="middle" font-family="DM Mono" font-size="12" font-weight="700" fill="#0e2b40">WEB</text>
-          </g>
-          <text x="2050" y="1398" text-anchor="middle" class="site-title">WEB LAB</text><text x="2050" y="1416" text-anchor="middle" class="site-sub">CREATOR DISTRICT</text>
-        </g>
-
-        <!-- EXAM ARENA -->
-        <g class="site" data-site="exam" data-x="420" data-y="1190" filter="url(#shadow)">
-          <ellipse cx="420" cy="1300" rx="235" ry="52" fill="#000" opacity=".24"/>
-          <path d="M205 1200 Q420 1040 635 1200L600 1350Q420 1465 240 1350Z" fill="#311c33" stroke="#ff9ee7" stroke-opacity=".35" stroke-width="4"/>
-          <path d="M265 1207 Q420 1110 575 1207L545 1300Q420 1375 295 1300Z" fill="url(#exam)" opacity=".82"/>
-          <path d="M320 1228 Q420 1170 520 1228" fill="none" stroke="#ffe1f7" stroke-width="8" stroke-opacity=".55"/>
-          <rect x="350" y="1260" width="140" height="38" rx="10" fill="#0f1820" stroke="#ffb9ed" stroke-opacity=".35"/>
-          <text x="420" y="1285" text-anchor="middle" class="site-title">EXAM ARENA</text>
-          <text x="420" y="1418" text-anchor="middle" class="site-sub">ОГЭ • ЕГЭ</text>
-        </g>
-
-        <!-- decorative blocks -->
-        <g opacity=".95">
-          <g transform="translate(700 780)"><rect x="0" y="0" width="28" height="42" rx="6" fill="#1c3944"/><rect x="5" y="6" width="18" height="4" rx="2" fill="#6ce0ff"/><rect x="5" y="15" width="18" height="4" rx="2" fill="#6ce0ff" opacity=".45"/></g>
-          <g transform="translate(1350 820)"><rect x="0" y="0" width="28" height="42" rx="6" fill="#1d3430"/><rect x="5" y="6" width="18" height="4" rx="2" fill="#78f1c2"/><rect x="5" y="15" width="18" height="4" rx="2" fill="#78f1c2" opacity=".4"/></g>
-        </g>
-
-        <!-- trees -->
-        <g fill="#173d39" stroke="#255b53" stroke-opacity=".65" stroke-width="2">
-          <g transform="translate(900 1030)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
-          <g transform="translate(1470 1000)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
-          <g transform="translate(1540 1160)"><rect x="-5" y="22" width="10" height="28" fill="#2b3a32"/><circle cx="0" cy="12" r="28"/><circle cx="-20" cy="20" r="18"/><circle cx="18" cy="20" r="18"/></g>
-        </g>
-
-        <!-- NPCs -->
-        <g id="npcsLayer"></g>
-        <g id="playerLayer"></g>
-        <g id="secretLayer"></g>
-      </g>
-    </svg>
-    <div class="world-hud"><div class="hud-title"><span class="hud-kicker">CURRENT OBJECTIVE</span><strong id="hudMission">Открыть PYTHON DISTRICT</strong></div><div class="hud-controls"><span><kbd>WASD</kbd> движение</span><span><kbd>E</kbd> взаимодействие</span></div></div>
-    <div class="map-controls"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">+</button><button id="recenter">⌂</button></div>
-    <div id="hint" class="hint"><span class="hint-key">E</span><span id="hintText">Подойти к объекту</span></div>
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <div class="touch-pad" id="touchPad"><button data-dir="up">▲</button><div><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div></div>
-  </section>
-
-  <aside class="panel right-panel">
-    <div class="eyebrow">ПРОГРЕСС</div>
-    <div class="profile-card"><div class="level-ring"><span id="levelValue">1</span><small>LEVEL</small></div><div class="profile-main"><strong>ИССЛЕДОВАТЕЛЬ</strong><b><span id="xpValue">0</span> XP</b><div class="bar"><span id="xpBar"></span></div></div></div>
-    <div class="panel-block"><div class="block-title">СЕЙЧАС</div><div class="mission"><span>01</span><div><strong id="missionTitle">Открыть PYTHON DISTRICT</strong><p id="missionText">Найди район и доберись до его входа.</p></div></div><button id="focusMission" class="wide-btn">Показать на карте <span>→</span></button></div>
-    <div class="panel-block"><div class="block-title">НАВЫКИ</div><div class="skill" data-skill="python"><div><span>Python</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="ai"><div><span>AI</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="algo"><div><span>Алгоритмы</span><b>0%</b></div><div class="bar"><span></span></div></div><div class="skill" data-skill="web"><div><span>Web</span><b>0%</b></div><div class="bar"><span></span></div></div></div>
-    <div class="panel-block discoveries"><div class="block-title">ОТКРЫТИЯ</div><div class="discover-num"><strong id="discoverCount">0</strong><span>/ 5 районов</span></div><div class="bar"><span id="discoverBar"></span></div></div>
-    <div class="panel-footer"><span>LOCAL SAVE</span><span id="saveState">SYNCED</span></div>
-  </aside>
-</main>
-
-<div id="modalBackdrop" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true"><button id="modalClose" class="modal-close">×</button><div class="modal-top"><span id="modalCode">ZONE 01</span><span id="modalStatus">OPEN</span></div><h2 id="modalTitle">Python District</h2><p id="modalDescription"></p><div class="modal-grid"><div><small>ФОКУС</small><strong id="modalFocus"></strong></div><div><small>УРОВЕНЬ</small><strong id="modalLevel"></strong></div></div><div class="mission-box"><div><small>МИССИЯ</small><strong id="modalMission"></strong><p id="modalMissionText"></p></div><button id="modalAction" class="primary-btn">Начать</button></div></section></div>
-
-<script src="script.js?v=3.0"></script>
-</div>
-</body>
-</html>
+<div id="boot" class="boot"><div class="boot-card"><div class="boot-orb"></div><div class="boot-title">ИНФО<span>.</span>WORLD</div><p>ГОРОД, КОТОРЫЙ РАСТЁТ ВМЕСТЕ С ТОБОЙ</p><div class="load"><i id="loadBar"></i></div><small id="loadPct">0%</small><button id="enterBtn" disabled>Войти в город</button></div></div>
+<div id="app" class="app hidden">
+<header class="topbar"><button class="brand" id="homeBtn"><i></i>ИНФО<span>.</span>WORLD</button><div class="status"><b></b> ГОРОД ОНЛАЙН <em>•</em> <span id="clock">00:00</span></div><div class="head-actions"><button id="helpBtn">?</button><button id="resetBtn">↻</button></div></header>
+<div class="shell">
+<aside class="sidebar left"><div class="side-label">ТВОЙ МИР</div><div class="place-card"><div class="place-icon">⌂</div><div><strong id="placeName">INFO CORE</strong><span id="placeSub">CENTRAL DISTRICT</span></div></div><div class="side-label">РАЙОНЫ</div><nav id="districtNav"></nav><div class="controls"><div class="side-label">УПРАВЛЕНИЕ</div><p><kbd>W A S D</kbd> движение</p><p><kbd>E</kbd> взаимодействие</p><p><kbd>DRAG</kbd> камера</p><p><kbd>SCROLL</kbd> масштаб</p></div></aside>
+<main id="viewport" class="viewport"><div id="camera" class="camera"><svg id="world" viewBox="0 0 2200 1450" role="application" aria-label="Интерактивный город знаний">
+<defs>
+ <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#10243b"/><stop offset=".5" stop-color="#081521"/><stop offset="1" stop-color="#050b12"/></linearGradient>
+ <radialGradient id="coreGlow"><stop stop-color="#8ce9ff" stop-opacity=".55"/><stop offset="1" stop-color="#4a79ff" stop-opacity="0"/></radialGradient>
+ <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2a3948"/><stop offset="1" stop-color="#121d29"/></linearGradient>
+ <linearGradient id="glass" x1="0" x2="1"><stop stop-color="#163b52"/><stop offset=".5" stop-color="#275b75"/><stop offset="1" stop-color="#0d1d2b"/></linearGradient>
+ <linearGradient id="tower" x1="0" x2="1"><stop stop-color="#102c41"/><stop offset=".45" stop-color="#2f7894"/><stop offset="1" stop-color="#0a1826"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#000" flood-opacity=".45"/></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+ <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="#284052" stroke-opacity=".3"/></pattern>
+</defs>
+<!-- background --> <rect width="2200" height="1450" fill="url(#sky)"/><rect width="2200" height="1450" fill="url(#grid)" opacity=".65"/>
+<ellipse cx="1100" cy="760" rx="680" ry="600" fill="url(#coreGlow)" filter="url(#soft)"/>
+<g id="stars"></g>
+<!-- distant city silhouette --> <g opacity=".38" fill="#0b1722"><path d="M0 280h80v-100h45v100h60V80h58v200h50v-55h72v55h88v-150h55v150h80V190h90v90h50v-75h55v75h120v-130h70v130h55v-220h90v220h80v-100h48v100h90v-60h64v60h75v-160h75v160h120v-90h55v90h170v350H0z"/></g>
+<!-- roads --> <g fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"><path d="M1110 760 L640 510" stroke="#071019" stroke-width="138"/><path d="M1110 760 L1550 500" stroke="#071019" stroke-width="138"/><path d="M1110 760 L1700 1100" stroke="#071019" stroke-width="138"/><path d="M1110 760 L520 1120" stroke="#071019" stroke-width="138"/><path d="M1110 760 L1080 250" stroke="#071019" stroke-width="118"/>
+<g stroke="url(#road)"><path d="M1110 760 L640 510" stroke-width="112"/><path d="M1110 760 L1550 500" stroke-width="112"/><path d="M1110 760 L1700 1100" stroke-width="112"/><path d="M1110 760 L520 1120" stroke-width="112"/><path d="M1110 760 L1080 250" stroke-width="92"/></g><g stroke="#718497" stroke-opacity=".28" stroke-width="3" stroke-dasharray="14 18"><path d="M1110 760 L640 510"/><path d="M1110 760 L1550 500"/><path d="M1110 760 L1700 1100"/><path d="M1110 760 L520 1120"/><path d="M1110 760 L1080 250"/></g></g>
+<!-- PYTHON CAMPUS --> <g class="district-art" id="art-python" data-zone="python" transform="translate(300 270)" filter="url(#shadow)"><ellipse cx="290" cy="280" rx="310" ry="180" fill="#0a231d" opacity=".7"/><path d="M45 260L180 165H450L570 250 430 325H170z" fill="#17372f" stroke="#5bd3a1" stroke-opacity=".45"/><path d="M165 165h285l110 84-125 50H160L45 260z" fill="#22483d"/><path d="M165 165h285v150H165z" fill="url(#glass)"/><g fill="#79f0b9" opacity=".7"><rect x="190" y="195" width="38" height="25"/><rect x="245" y="195" width="38" height="25"/><rect x="300" y="195" width="38" height="25"/><rect x="355" y="195" width="38" height="25"/><rect x="190" y="240" width="38" height="25"/><rect x="245" y="240" width="38" height="25"/><rect x="300" y="240" width="38" height="25"/><rect x="355" y="240" width="38" height="25"/></g><path d="M210 142l20-55 18 55m-7-20h-13m45 20 18-55 20 55m-10-20h-15" stroke="#8affc8" stroke-width="7" fill="none"/><g class="trees"><circle cx="92" cy="270" r="25" fill="#1d674f"/><circle cx="520" cy="250" r="29" fill="#1d674f"/><circle cx="95" cy="320" r="20" fill="#2b8c67"/></g><text x="300" y="355" text-anchor="middle">PYTHON DISTRICT</text><text class="subtext" x="300" y="382" text-anchor="middle">CODE CAMPUS</text></g>
+<!-- ALGORITHM CITY --> <g class="district-art" id="art-algo" data-zone="algo" transform="translate(790 70)" filter="url(#shadow)"><ellipse cx="290" cy="300" rx="315" ry="190" fill="#17112b" opacity=".72"/><g fill="#24203a" stroke="#9d86ff" stroke-width="4"><path d="M80 150h120v70H80z"/><path d="M380 150h120v70H380z"/><path d="M230 290h120v70H230z"/></g><g fill="#6c59bc"><circle cx="140" cy="185" r="18"/><circle cx="440" cy="185" r="18"/><circle cx="290" cy="325" r="18"/></g><path d="M158 185h120m12 0h132m-282 0 150 140" stroke="#d6ccff" stroke-width="7" fill="none"/><path d="M278 175l22 10-22 10m120-10 22 10-22 10m-128 110v22m0 12v22" stroke="#d6ccff" stroke-width="5" fill="none"/><g class="logic-flow"><circle cx="210" cy="185" r="7"/><circle cx="350" cy="185" r="7"/><circle cx="250" cy="270" r="7"/></g><text x="290" y="415" text-anchor="middle">ALGORITHM CITY</text><text class="subtext" x="290" y="442" text-anchor="middle">LOGIC METRO</text></g>
+<!-- AI LAB --> <g class="district-art" id="art-ai" data-zone="ai" transform="translate(1400 230)" filter="url(#shadow)"><ellipse cx="330" cy="300" rx="340" ry="195" fill="#2b1b0d" opacity=".68"/><path d="M130 280a180 180 0 0 1 360 0v60H130z" fill="#2c251d" stroke="#f0a84f" stroke-width="5"/><path d="M150 280a160 160 0 0 1 320 0" fill="none" stroke="#5d4630" stroke-width="24"/><path d="M165 275a145 145 0 0 1 290 0" fill="none" stroke="#ffbd67" stroke-opacity=".22" stroke-width="8"/><g stroke="#ffbf70" stroke-width="5" fill="#2a1e14"><circle cx="220" cy="210" r="22"/><circle cx="330" cy="150" r="25"/><circle cx="425" cy="225" r="22"/><path d="M240 202l68-36m43 7 55 38"/></g><circle cx="330" cy="150" r="9" fill="#fff1c8"/><g fill="#9d6b32"><rect x="165" y="295" width="70" height="42"/><rect x="385" y="295" width="70" height="42"/></g><text x="330" y="410" text-anchor="middle">AI LAB</text><text class="subtext" x="330" y="437" text-anchor="middle">NEURAL RESEARCH</text></g>
+<!-- WEB LAB --> <g class="district-art" id="art-web" data-zone="web" transform="translate(1500 900)" filter="url(#shadow)"><ellipse cx="310" cy="290" rx="330" ry="185" fill="#081d31" opacity=".78"/><g><path d="M130 300V120l85-55v235z" fill="#173d5c"/><path d="M215 300V65l105 65v170z" fill="#245a7c"/><path d="M320 300V155l85-45v190z" fill="#12334f"/><g fill="#77c8ff"><rect x="155" y="145" width="30" height="18"/><rect x="155" y="185" width="30" height="18"/><rect x="155" y="225" width="30" height="18"/><rect x="240" y="140" width="52" height="18"/><rect x="240" y="180" width="52" height="18"/><rect x="240" y="220" width="52" height="18"/><rect x="345" y="170" width="30" height="18"/><rect x="345" y="210" width="30" height="18"/></g></g><path d="M70 315h490" stroke="#3c8dc2" stroke-width="7"/><g stroke="#74d4ff" fill="none" stroke-width="3" opacity=".75"><path d="M100 80c90 20 120 90 120 160"/><path d="M520 95c-80 30-100 95-100 150"/></g><g class="server"><rect x="445" y="245" width="70" height="70" rx="8" fill="#10283d" stroke="#3f91c4"/><path d="M460 263h40m-40 14h40m-40 14h40" stroke="#6cc8ff" stroke-width="4"/></g><text x="310" y="395" text-anchor="middle">WEB LAB</text><text class="subtext" x="310" y="422" text-anchor="middle">CREATOR TOWERS</text></g>
+<!-- EXAM ARENA --> <g class="district-art" id="art-exam" data-zone="exam" transform="translate(200 940)" filter="url(#shadow)"><ellipse cx="320" cy="285" rx="330" ry="180" fill="#2b102d" opacity=".72"/><path d="M100 290q20-190 220-190t220 190" fill="#3a2140" stroke="#d878db" stroke-width="7"/><path d="M125 285q35-145 195-145t195 145" fill="#1d1729"/><g fill="#e69cef"><rect x="180" y="205" width="45" height="95"/><rect x="415" y="205" width="45" height="95"/></g><path d="M245 280v-95h150v95" fill="#5b285d" stroke="#f0b0f4" stroke-width="4"/><text x="320" y="247" text-anchor="middle" fill="#fff">EXAM</text><g fill="#8d5795"><path d="M135 305h370l-40 55H175z"/></g><text x="320" y="405" text-anchor="middle">EXAM ARENA</text><text class="subtext" x="320" y="432" text-anchor="middle">CHALLENGE ZONE</text></g>
+<!-- CENTRAL CORE --> <g class="district-art core" id="art-hub" data-zone="hub" transform="translate(820 560)" filter="url(#shadow)"><ellipse cx="290" cy="280" rx="350" ry="220" fill="url(#coreGlow)" opacity=".75"/><path d="M95 270l195-130 195 130v110l-195 110-195-110z" fill="#0e2131" stroke="#5cd7ff" stroke-width="6"/><path d="M290 40l90 210-90 55-90-55z" fill="url(#tower)" stroke="#7ce5ff" stroke-width="4"/><path d="M290 75v205" stroke="#b2f5ff" stroke-opacity=".7" stroke-width="6"/><path d="M290 40v-70" stroke="#72dcff" stroke-width="5"/><circle cx="290" cy="-40" r="24" fill="#7de9ff"/><circle cx="290" cy="-40" r="45" fill="none" stroke="#7de9ff" stroke-opacity=".35" stroke-width="3"/><path d="M165 300h250v75H165z" fill="#102b3e"/><text x="290" y="345" text-anchor="middle" class="hubtext">INFO CORE</text><text class="subtext" x="290" y="520" text-anchor="middle">CENTRAL DISTRICT</text></g>
+<!-- NPCs --> <g id="npcLayer"><g class="npc" data-npc="byte" transform="translate(930 900)"><circle r="28" fill="#0e2430" stroke="#5ee2ff" stroke-width="4"/><circle r="12" fill="#7de9ff"/><text y="55" text-anchor="middle">BYTE</text></g><g class="npc" data-npc="ada" transform="translate(1570 760)"><circle r="28" fill="#2d2117" stroke="#ffbf70" stroke-width="4"/><circle r="12" fill="#ffd28c"/><text y="55" text-anchor="middle">ADA</text></g><g class="npc" data-npc="max" transform="translate(720 1050)"><circle r="28" fill="#211b34" stroke="#b595ff" stroke-width="4"/><circle r="12" fill="#d1c0ff"/><text y="55" text-anchor="middle">MAX</text></g></g>
+<!-- player --> <g id="player" transform="translate(1110 880)"><circle r="39" fill="#5fe4ff" fill-opacity=".14" stroke="#70e8ff" stroke-width="3"/><circle r="21" fill="#dffaff"/><path d="M-8 0h16M0-8v16" stroke="#0b3447" stroke-width="3"/></g>
+</svg></div>
+<div class="world-title"><span>WELCOME TO</span><strong>INFO.WORLD</strong><p>Исследуй. Учись. Создавай.</p></div>
+<div class="map-controls"><button id="zoomOut">−</button><b id="zoomLabel">100%</b><button id="zoomIn">+</button><button id="centerBtn">⌖</button></div>
+<div id="interactionHint" class="interaction hidden"><kbd>E</kbd><span>Войти в локацию</span></div>
+<div class="toast" id="toast"></div></main>
+<aside class="sidebar right"><div class="level-card"><div class="level-ring"><b id="levelNum">1</b><span>LEVEL</span></div><div><span>ИССЛЕДОВАТЕЛЬ</span><strong><b id="xpNum">0</b> XP</strong><div class="xp"><i id="xpBar"></i></div></div></div><div class="side-label">СЕЙЧАС</div><div class="mission"><span>01</span><div><b id="missionTitle">Открыть PYTHON DISTRICT</b><p id="missionText">Найди район и войди в него.</p></div></div><button class="focus-btn" id="focusBtn">Показать цель →</button><div class="side-label">НАВЫКИ</div><div id="skills"></div><div class="side-label">ОТКРЫТИЯ</div><div class="discover"><b id="discoverCount">0</b><span>/ 5 районов</span><div class="xp"><i id="discoverBar"></i></div></div><div class="save-state">LOCAL SAVE <b id="saveText">SYNCED</b></div></aside>
+</div></div>
+<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal">×</button><span id="modalEyebrow">DISTRICT</span><h2 id="modalTitle">PYTHON DISTRICT</h2><p id="modalText"></p><div id="modalLesson" class="lesson"></div><button id="completeBtn">Завершить первое действие</button></div></div>
+<script src="script.js"></script></body></html>
