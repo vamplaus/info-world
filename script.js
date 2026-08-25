@@ -1,141 +1,206 @@
 (()=>{
 "use strict";
-const $=id=>document.getElementById(id);
-const viewport=$("viewport"),camera=$("camera"),stage=document.querySelector(".map-stage");
-const WORLD={w:1536,h:1024};
-const zones={
- hub:{name:"INFO CORE",sub:"CENTRAL DISTRICT",symbol:"✦",level:1,x:768,y:604,skill:null,text:"Сердце системы. Здесь сходятся все маршруты обучения и начинается путь исследователя.",lesson:"INFO CORE\n\nВыбери направление, изучи район и возвращайся сюда, чтобы видеть рост всего мира."},
- python:{name:"PYTHON DISTRICT",sub:"CODE GARDEN",symbol:"⌘",level:1,x:307,y:399,skill:"Python",text:"Район гибкого кода и чистой логики. Здесь Python становится первым настоящим инструментом создания.",lesson:'print("Привет, мир!")\n\n01 → переменные\n02 → условия\n03 → циклы\n04 → функции'},
- algo:{name:"ALGORITHM CITY",sub:"CODE GARDEN",symbol:"◈",level:2,x:768,y:235,skill:"Алгоритмы",text:"Центр развития технологий и алгоритмического мышления. Здесь рождаются идеи, которые затем превращаются в системы.",lesson:"ЗАДАЧА → ДЕКОМПОЗИЦИЯ → АЛГОРИТМ → ПРОВЕРКА\n\nКаждая сложная задача начинается с правильного разбиения."},
- ai:{name:"AI LAB",sub:"GENIAL RESEARCH",symbol:"✺",level:3,x:1105,y:348,skill:"AI",text:"Лаборатория искусственного интеллекта. Здесь изучаются данные, модели и принципы, которые помогают системам распознавать закономерности.",lesson:"ДАННЫЕ → ПРИЗНАКИ → МОДЕЛЬ → ОЦЕНКА\n\nAI — не магия. Это управляемый процесс построения модели."},
- web:{name:"WEB LAB",sub:"CREATOR TOWERS",symbol:"◎",level:2,x:1210,y:695,skill:"Web",text:"Башни создателей. Здесь интерфейсы, сайты и цифровые миры становятся доступными другим людям.",lesson:"HTML → структура\nCSS → внешний вид\nJavaScript → поведение\n\nСобери идею в работающий продукт."},
- exam:{name:"EXAM ARENA",sub:"CHALLENGE ZONE",symbol:"♜",level:4,x:338,y:700,skill:"Экзамен",text:"Арена испытаний, где знания проверяются практикой и реальными задачами. Здесь важен не просмотр материала, а результат.",lesson:"01 — понять условие\n02 — выбрать стратегию\n03 — решить\n04 — проверить\n\nИспытание показывает реальный уровень."}
+
+const $ = id => document.getElementById(id);
+const zones = {
+  hub:{
+    name:"INFO CORE", sub:"CENTRAL DISTRICT", symbol:"✦", level:1, skill:null,
+    text:"Центральная точка мира: здесь соединяются все учебные направления и виден общий прогресс исследователя.",
+    lesson:"ЕДИНСТВО → ЛОГИКА → СОЗДАНИЕ → ИССЛЕДОВАНИЕ\n\nНачни с Python, затем открывай алгоритмы, AI, Web и практические испытания."
+  },
+  python:{
+    name:"PYTHON DISTRICT", sub:"CODE GARDEN", symbol:"⌘", level:1, skill:"Python",
+    text:"Район первого кода. Здесь ученик учится превращать мысль в точную последовательность команд.",
+    lesson:"01 — переменные\n02 — условия\n03 — циклы\n04 — функции\n\nПервый маршрут: от простой команды к программе."
+  },
+  algo:{
+    name:"ALGORITHM CITY", sub:"THINKING DISTRICT", symbol:"◈", level:2, skill:"Алгоритмы",
+    text:"Город алгоритмического мышления. Здесь задачи разбиваются на понятные шаги, а решения проверяются до результата.",
+    lesson:"ЗАДАЧА → ДЕКОМПОЗИЦИЯ → АЛГОРИТМ → ПРОВЕРКА\n\nСильное решение начинается не с кода, а с правильного способа мышления."
+  },
+  ai:{
+    name:"AI LAB", sub:"INTELLIGENCE LAB", symbol:"✺", level:3, skill:"AI",
+    text:"Лаборатория искусственного интеллекта: данные, признаки, модели и проверка качества результата.",
+    lesson:"ДАННЫЕ → ПРИЗНАКИ → МОДЕЛЬ → ОЦЕНКА\n\nAI изучается как инженерная система, а не как магия."
+  },
+  web:{
+    name:"WEB LAB", sub:"CREATOR TOWERS", symbol:"◎", level:2, skill:"Web",
+    text:"Мастерская цифровых миров. Здесь структура, визуальный язык и интерактивность превращаются в работающий сайт.",
+    lesson:"HTML → структура\nCSS → визуальный слой\nJavaScript → взаимодействие\n\nИдея становится продуктом, которым может пользоваться другой человек."
+  },
+  exam:{
+    name:"EXAM ARENA", sub:"CHALLENGE ZONE", symbol:"✧", level:4, skill:"Практика",
+    text:"Финальная зона практики. Здесь проверяется не количество просмотренного материала, а способность самостоятельно решить задачу.",
+    lesson:"01 — понять условие\n02 — выбрать стратегию\n03 — реализовать\n04 — проверить\n\nРезультат важнее подсказки."
+  }
 };
 
-const state={
- zoom:1,camX:0,camY:0,drag:false,last:null,
- active:"hub",xp:0,discovered:[]
+const state = {
+  active:"hub",
+  xp:0,
+  discovered:[]
 };
 
 function load(){
- try{
-  const saved=JSON.parse(localStorage.getItem("info-world-caucasus-map")||"{}");
-  if(saved && Array.isArray(saved.discovered)){
-   state.xp=Number(saved.xp)||0; state.discovered=saved.discovered;
-  }
- }catch(e){}
+  try{
+    const saved = JSON.parse(localStorage.getItem("info-world-caucasus-map") || "{}");
+    if(saved && Array.isArray(saved.discovered)){
+      state.xp = Number(saved.xp) || 0;
+      state.discovered = saved.discovered.filter(id=>zones[id] && id!=="hub");
+    }
+  }catch(_){}
 }
+
 function save(){
- localStorage.setItem("info-world-caucasus-map",JSON.stringify({xp:state.xp,discovered:state.discovered}));
+  try{
+    localStorage.setItem("info-world-caucasus-map", JSON.stringify({
+      xp:state.xp,
+      discovered:state.discovered
+    }));
+  }catch(_){}
 }
+
 function unlocked(id){
- if(id==="hub"||id==="python") return true;
- if(id==="algo"||id==="web") return state.discovered.includes("python");
- if(id==="ai") return state.discovered.includes("algo");
- if(id==="exam") return state.discovered.includes("ai") && state.discovered.includes("web");
- return false;
+  if(id==="hub" || id==="python") return true;
+  if(id==="algo" || id==="web") return state.discovered.includes("python");
+  if(id==="ai") return state.discovered.includes("algo");
+  if(id==="exam") return state.discovered.includes("ai") && state.discovered.includes("web");
+  return false;
 }
+
 function updateUI(){
- const level=1+Math.floor(state.xp/100);
- $("levelNum").textContent=level;
- $("xpNum").textContent=state.xp;
- $("xpBar").style.width=(state.xp%100)+"%";
- $("discoverCount").textContent=`${state.discovered.length} / 5`;
- const next=["python","algo","web","ai","exam"].find(id=>!state.discovered.includes(id)&&unlocked(id));
- $("missionTitle").textContent=next?`ОТКРЫТЬ ${zones[next].name}`:"МИР ИССЛЕДОВАН";
- $("missionText").textContent=next?"Выбери доступную локацию мышью, чтобы исследовать её.":"Все основные районы открыты.";
- document.querySelectorAll(".zone-hotspot").forEach(b=>{
-  const id=b.dataset.zone;
-  b.classList.toggle("locked",!unlocked(id));
-  b.classList.toggle("visited",state.discovered.includes(id));
- });
+  const level = 1 + Math.floor(state.xp / 100);
+  $("levelNum").textContent = level;
+  $("xpNum").textContent = state.xp;
+  $("xpBar").style.width = `${state.xp % 100}%`;
+  $("discoverCount").textContent = `${state.discovered.length} / 5`;
+
+  const next = ["python","algo","web","ai","exam"]
+    .find(id=>!state.discovered.includes(id) && unlocked(id));
+
+  $("missionTitle").textContent = next ? `ОТКРЫТЬ ${zones[next].name}` : "МИР ИССЛЕДОВАН";
+  $("missionText").textContent = next
+    ? "Нажми на отмеченную локацию на карте."
+    : "Все основные учебные районы исследованы.";
+
+  document.querySelectorAll(".zone-hotspot").forEach(button=>{
+    const id = button.dataset.zone;
+    const isLocked = !unlocked(id);
+    const visited = state.discovered.includes(id);
+    button.classList.toggle("locked", isLocked);
+    button.classList.toggle("visited", visited);
+    button.setAttribute("aria-disabled", String(isLocked));
+    button.title = isLocked
+      ? "Район пока закрыт"
+      : `${zones[id].name}: открыть описание`;
+  });
 }
-function transform(){
- camera.style.transform=`translate(calc(-50% + ${state.camX}px),calc(-50% + ${state.camY}px)) scale(${state.zoom})`;
- $("zoomLabel").textContent=Math.round(state.zoom*100)+"%";
-}
-function focus(id,open=true){
- const z=zones[id];
- if(!unlocked(id)){toast("Этот район пока закрыт");return;}
- state.active=id;
- const targetScale=Math.max(.92,Math.min(1.28,state.zoom));
- state.camX=(WORLD.w/2-z.x)*targetScale;
- state.camY=(WORLD.h/2-z.y)*targetScale;
- transform();
- if(open) setTimeout(()=>openZone(id),320);
-}
+
 function openZone(id){
- if(!unlocked(id)){toast("Сначала открой предыдущий маршрут");return;}
- const z=zones[id]; state.active=id;
- $("modalEyebrow").textContent=z.sub;
- $("modalSymbol").textContent=z.symbol;
- $("modalTitle").textContent=z.name;
- $("modalText").textContent=z.text;
- $("modalLesson").textContent=z.lesson;
- const done=state.discovered.includes(id);
- $("completeBtn").textContent=id==="hub"?"Продолжить исследование":done?"Локация уже исследована":"Исследовать локацию";
- $("completeBtn").classList.toggle("done",done);
- $("modal").classList.remove("hidden");
+  if(!unlocked(id)){
+    toast("РАЙОН ПОКА ЗАКРЫТ");
+    return;
+  }
+
+  state.active = id;
+  const z = zones[id];
+  $("modalEyebrow").textContent = z.sub;
+  $("modalSymbol").textContent = z.symbol;
+  $("modalTitle").textContent = z.name;
+  $("modalText").textContent = z.text;
+  $("modalLesson").textContent = z.lesson;
+
+  const done = id !== "hub" && state.discovered.includes(id);
+  const button = $("completeBtn");
+  button.textContent = id==="hub"
+    ? "Продолжить исследование"
+    : done
+      ? "Район уже исследован"
+      : "Исследовать район";
+  button.classList.toggle("done", done);
+  button.disabled = done;
+
+  $("modal").classList.remove("hidden");
+  $("closeModal").focus();
 }
+
 function complete(){
- const id=state.active;
- if(id!=="hub"&&!state.discovered.includes(id)){
-  state.discovered.push(id);state.xp+=25;save();
-  toast(`ОТКРЫТИЕ: ${zones[id].name}  +25 XP`);
+  const id = state.active;
+  if(id==="hub"){
+    $("modal").classList.add("hidden");
+    return;
+  }
+  if(state.discovered.includes(id)){
+    $("modal").classList.add("hidden");
+    return;
+  }
+
+  state.discovered.push(id);
+  state.xp += 25;
+  save();
   updateUI();
- }else if(id!=="hub"){
-  toast("Эта локация уже открыта");
- }
- $("modal").classList.add("hidden");
+  $("modal").classList.add("hidden");
+  toast(`ОТКРЫТ: ${zones[id].name}  ·  +25 XP`);
 }
-function toast(msg){
- const t=$("toast");t.textContent=msg;t.classList.add("show");
- clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove("show"),2600);
-}
-function clampCamera(){
- const maxX=450,maxY=320;
- state.camX=Math.max(-maxX,Math.min(maxX,state.camX));
- state.camY=Math.max(-maxY,Math.min(maxY,state.camY));
-}
-load();updateUI();transform();
 
-viewport.addEventListener("pointerdown",e=>{
- if(e.button!==0 || e.target.closest(".zone-hotspot"))return;
- e.preventDefault();
- state.drag=true;state.last={x:e.clientX,y:e.clientY};viewport.classList.add("dragging");
- if(viewport.setPointerCapture)viewport.setPointerCapture(e.pointerId);
+function toast(message){
+  const element = $("toast");
+  element.textContent = message;
+  element.classList.add("show");
+  clearTimeout(element._timer);
+  element._timer = setTimeout(()=>element.classList.remove("show"), 2400);
+}
+
+function closeModal(id){
+  $(id).classList.add("hidden");
+}
+
+load();
+updateUI();
+
+document.querySelectorAll(".zone-hotspot").forEach(button=>{
+  button.addEventListener("click", event=>{
+    event.stopPropagation();
+    const id = button.dataset.zone;
+    if(!unlocked(id)){
+      toast("СНАЧАЛА ОТКРОЙ ПРЕДЫДУЩИЙ РАЙОН");
+      return;
+    }
+    openZone(id);
+  });
 });
-viewport.addEventListener("pointermove",e=>{
- if(!state.drag)return;
- state.camX+=(e.clientX-state.last.x);
- state.camY+=(e.clientY-state.last.y);
- state.last={x:e.clientX,y:e.clientY};clampCamera();transform();
+
+document.querySelectorAll(".legend-item").forEach(button=>{
+  button.addEventListener("click", ()=>{
+    const id = button.dataset.zone;
+    if(unlocked(id)) openZone(id);
+    else toast("ЭТА ВЕТКА ЕЩЁ НЕ ОТКРЫТА");
+  });
 });
-function endDrag(){state.drag=false;viewport.classList.remove("dragging")}
-viewport.addEventListener("pointerup",endDrag);viewport.addEventListener("pointercancel",endDrag);
-viewport.addEventListener("wheel",e=>{
- e.preventDefault();
- state.zoom=Math.max(.72,Math.min(1.65,state.zoom+(e.deltaY<0?.08:-.08)));
- transform();
-},{passive:false});
 
-document.querySelectorAll(".zone-hotspot").forEach(b=>b.addEventListener("click",e=>{
- e.stopPropagation();focus(b.dataset.zone,true);
-}));
-document.querySelectorAll(".legend-item").forEach(b=>b.addEventListener("click",()=>focus(b.dataset.zone,true)));
+$("homeBtn").addEventListener("click", ()=>{
+  $("modal").classList.add("hidden");
+  toast("ЦЕНТРАЛЬНАЯ КАРТА");
+});
 
-$("zoomIn").onclick=()=>{state.zoom=Math.min(1.65,state.zoom+.1);transform();}
-$("zoomOut").onclick=()=>{state.zoom=Math.max(.72,state.zoom-.1);transform();}
-$("centerBtn").onclick=$("homeBtn").onclick=()=>{
- state.camX=0;state.camY=0;state.zoom=1;transform();toast("КАРТА ВОЗВРАЩЕНА В ЦЕНТР");
-};
-$("helpBtn").onclick=()=>$("helpModal").classList.remove("hidden");
-$("closeHelp").onclick=()=>$("helpModal").classList.add("hidden");
-$("closeModal").onclick=()=>$("modal").classList.add("hidden");
-$("completeBtn").onclick=complete;
-$("resetBtn").onclick=()=>{
- if(confirm("Сбросить весь прогресс карты?")){
-  localStorage.removeItem("info-world-caucasus-map");location.reload();
- }
-};
+$("helpBtn").addEventListener("click", ()=>$("helpModal").classList.remove("hidden"));
+$("closeHelp").addEventListener("click", ()=>closeModal("helpModal"));
+$("closeModal").addEventListener("click", ()=>closeModal("modal"));
+$("completeBtn").addEventListener("click", complete);
+
+$("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Сбросить весь прогресс карты?")){
+    localStorage.removeItem("info-world-caucasus-map");
+    location.reload();
+  }
+});
+
+["modal","helpModal"].forEach(id=>{
+  $(id).addEventListener("click", event=>{
+    if(event.target === $(id)) closeModal(id);
+  });
+});
+
+/* В этой версии намеренно НЕТ keyboard handlers, WASD, стрелок, E,
+   drag-камеры, wheel-zoom и программного масштабирования карты. */
 })();

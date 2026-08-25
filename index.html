@@ -17,7 +17,7 @@
     <button class="brand" id="homeBtn" aria-label="Вернуть карту в центр">
       <span class="brand-mark">✦</span>
       <span>WORLD</span>
-      <small>ИНТЕРАКТИВНАЯ КАРТА ЗНАНИЙ</small>
+      <small>ИНТЕРАКТИВНАЯ МИР ЗНАНИЙ</small>
     </button>
 
     <div class="top-actions">
@@ -28,8 +28,7 @@
   </header>
 
   <main id="viewport" class="viewport" aria-label="Интерактивная карта мира знаний">
-    <div id="camera" class="camera">
-      <div class="map-stage">
+    <div class="map-stage">
         <img src="world-map.png" class="map-art" alt="Стилизованная карта города знаний в кавказской горной эстетике">
 
         <div class="map-vignette"></div>
@@ -54,23 +53,15 @@
           <span class="pulse"></span><span class="hotspot-dot"></span>
         </button>
 
-      </div>
     </div>
 
     <section class="map-title">
-      <span class="eyebrow">КАРТА ЗНАНИЙ</span>
+      <span class="eyebrow">МИР ЗНАНИЙ</span>
       <h1>WORLD</h1>
       <p>ИССЛЕДУЙ. УЧИСЬ. СОЗДАВАЙ.</p>
       <div class="ornament"><i></i><b></b><i></i></div>
-      <small>МИР ВДОХНОВЛЁН ГОРНОЙ АРХИТЕКТУРОЙ,<br>КАМЕННОЙ СИЛОЙ И КУЛЬТУРНЫМ НАСЛЕДИЕМ КАВКАЗА</small>
+      <small>ВИЗУАЛЬНАЯ КОНЦЕПЦИЯ ВДОХНОВЛЕНА ГОРНОЙ АРХИТЕКТУРОЙ<br>И КУЛЬТУРНЫМ НАСЛЕДИЕМ КАВКАЗА</small>
     </section>
-
-    <div class="map-controls">
-      <button id="zoomOut">−</button>
-      <output id="zoomLabel">100%</output>
-      <button id="zoomIn">+</button>
-      <button id="centerBtn" title="В центр">⌖</button>
-    </div>
 
     <aside class="progress-panel">
       <div class="progress-head">
@@ -83,13 +74,11 @@
         <span class="objective-num">01</span>
         <div><b id="missionTitle">НАЧАТЬ ИССЛЕДОВАНИЕ</b><p id="missionText">Выбери локацию мышью.</p></div>
       </div>
-    </aside>
-
+    </aside> 
     <aside class="control-card">
-      <span>УПРАВЛЕНИЕ МЫШЬЮ</span>
-      <p><kbd>CLICK</kbd><small>открыть локацию</small></p>
-      <p><kbd>DRAG</kbd><small>перемещать карту</small></p>
-      <p><kbd>SCROLL</kbd><small>изменить масштаб</small></p>
+      <span>УПРАВЛЕНИЕ</span>
+      <p><kbd>CLICK</kbd><small>открыть район</small></p>
+      <p><kbd>INFO</kbd><small>изучить описание и маршрут</small></p>
     </aside>
 
     <div id="toast" class="toast" role="status"></div>
@@ -115,17 +104,15 @@
   </div>
 </div>
 
-<div id="helpModal" class="modal hidden">
+<div id="helpModal" class="modal hidden" role="dialog" aria-modal="true">
   <div class="modal-card help-card">
-    <button id="closeHelp" class="modal-close">×</button>
+    <button id="closeHelp" class="modal-close" aria-label="Закрыть">×</button>
     <span>КАК ИССЛЕДОВАТЬ КАРТУ</span>
-    <h2>Ты управляешь исследователем</h2>
-    <p>WASD перемещает маркер по карте. Когда он оказывается рядом с районом, появляется подсказка <b>E</b>. Карту можно свободно двигать мышью и масштабировать.</p>
+    <h2>Карта работает мышью</h2>
+    <p>Выбирай районы непосредственно на карте. Нажатие открывает описание, учебный маршрут и возможность отметить район исследованным.</p>
     <div class="help-grid">
-      <div><kbd>W A S D</kbd><small>движение</small></div>
-      <div><kbd>E</kbd><small>взаимодействие</small></div>
-      <div><kbd>DRAG</kbd><small>камера</small></div>
-      <div><kbd>SCROLL</kbd><small>масштаб</small></div>
+      <div><kbd>CLICK</kbd><small>открыть район</small></div>
+      <div><kbd>HOVER</kbd><small>подсветить точку</small></div>
     </div>
   </div>
 </div>
